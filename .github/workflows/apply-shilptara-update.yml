@@ -1,0 +1,33 @@
+name: Apply Shilptara update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/update.part.00'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply packaged update
+        run: |
+          cat .github/update.part.* | base64 -d | tar -xz
+      - name: Commit updated website
+        run: |
+          rm -f .github/update.part.* .github/workflows/apply-shilptara-update.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Add celebrity photo video gallery admin"
+          git push origin HEAD:main
