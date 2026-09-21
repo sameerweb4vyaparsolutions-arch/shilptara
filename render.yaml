@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: shilptara-ecommerce
+    runtime: node
+    buildCommand: npm install && npm run setup-db
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_STORE
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: shilptarabysonali@gmail.com
+      - key: ADMIN_PASSWORD
+        sync: false

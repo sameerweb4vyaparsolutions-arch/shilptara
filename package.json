@@ -1,0 +1,24 @@
+{
+  "name": "shilptara-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shilptara by Sonali ecommerce - Node.js, MySQL and EJS",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "setup-db": "node setup.js",
+    "check": "node --check app.js && node --check setup.js && node --check routes/site.js && node --check routes/auth.js && node --check routes/admin.js && node --check routes/media.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.2",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.5",
+    "slugify": "^1.6.6"
+  }
+}

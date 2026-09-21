@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+<main class="page-main">
+  <section class="page-hero compact"><div class="container"><span class="section-kicker">Botanical keepsakes</span><h1>Shop Shilptara</h1><p>Browse handcrafted jewellery, resin art, personalised keepsakes and flower-preservation pieces.</p></div></section>
+  <section class="container shop-layout">
+    <aside class="shop-sidebar">
+      <form method="get" action="/shop">
+        <h3>Search</h3><input class="field" type="search" name="q" value="<%= q %>" placeholder="Search products">
+        <h3>Categories</h3><label class="filter-option"><input type="radio" name="category" value="" <%= !category?'checked':'' %>> All products</label>
+        <% categories.forEach(c=>{ %><label class="filter-option"><input type="radio" name="category" value="<%= c.slug %>" <%= category===c.slug?'checked':'' %>> <%= c.name %></label><% }) %>
+        <h3>Sort</h3><select class="field" name="sort"><option value="featured" <%= sort==='featured'?'selected':'' %>>Featured</option><option value="newest" <%= sort==='newest'?'selected':'' %>>Newest</option><option value="price_low" <%= sort==='price_low'?'selected':'' %>>Price: Low to High</option><option value="price_high" <%= sort==='price_high'?'selected':'' %>>Price: High to Low</option><option value="name" <%= sort==='name'?'selected':'' %>>Name A-Z</option></select>
+        <button class="btn btn-primary btn-block" type="submit">Apply</button>
+      </form>
+    </aside>
+    <div class="shop-results">
+      <div class="results-top"><p><b><%= products.length %></b> products found</p><button class="btn btn-ghost mobile-filter" type="button" data-filter-toggle>Filters</button></div>
+      <% if(products.length){ %><div class="product-grid"><% products.forEach(product=>{ %><%- include('partials/product-card',{product}) %><% }) %></div><% } else { %><div class="empty-state"><h2>No products found</h2><p>Try another category or search term.</p><a class="btn btn-primary" href="/shop">View all products</a></div><% } %>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>

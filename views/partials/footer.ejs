@@ -1,0 +1,17 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="/images/logo.jpg" alt="Shilptara by Sonali">
+      <p><%= site.footer_note || 'Handmade with care. Because flowers and memories deserve to stay.' %></p>
+      <div class="social-links"><a href="<%= site.instagram_url || '#' %>" target="_blank" rel="noopener">Instagram</a><a href="<%= site.facebook_url || '#' %>" target="_blank" rel="noopener">Facebook</a></div>
+    </div>
+    <div><h4>Shop</h4><a href="/shop?category=pendants">Pendants</a><a href="/shop?category=bracelets">Bracelets</a><a href="/shop?category=rings">Rings</a><a href="/shop?category=keychains">Keychains</a><a href="/shop?category=nameplates">Nameplates</a></div>
+    <div><h4>Help</h4><a href="/about">Our Story</a><a href="/custom-order">Custom Orders</a><a href="/contact">Contact Us</a><a href="/account">Track Orders</a><a href="/wishlist">Wishlist</a></div>
+    <div><h4>Contact</h4><p><%= site.contact_email %></p><p><%= site.contact_phone %></p><p><%= site.address %></p><p class="shipping-note"><%= site.shipping_note %></p></div>
+  </div>
+  <div class="container footer-bottom"><span>© <%= new Date().getFullYear() %> <%= site.site_name %></span><span>Secure checkout • Handmade products • Customisable</span></div>
+</footer>
+<% if (site.whatsapp_number) { %><a class="whatsapp-float" href="https://wa.me/<%= String(site.whatsapp_number).replace(/\D/g,'') %>?text=Hi%20Shilptara%2C%20I%20need%20help%20with%20a%20product" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">☎</a><% } %>
+<div class="activity-toast" data-activity-toast hidden><img data-activity-img alt=""><div><strong data-activity-title></strong><span data-activity-text></span></div><button type="button" data-activity-close>×</button></div>
+<script src="/js/site.js"></script>
+</body></html>

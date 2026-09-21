@@ -1,0 +1,14 @@
+<article class="product-card" data-product-card>
+  <a class="product-image" href="/product/<%= product.slug %>">
+    <% if (product.compare_price && Number(product.compare_price) > Number(product.price)) { const off=Math.round((1-Number(product.price)/Number(product.compare_price))*100); %><span class="discount-badge"><%= off %>% OFF</span><% } %>
+    <% if (product.image_id) { %><img src="/media/product/<%= product.image_id %>" alt="<%= product.name %>" loading="lazy"><% } else { %><div class="image-placeholder">Shilptara</div><% } %>
+  </a>
+  <button class="wishlist-card-btn" type="button" data-wishlist-product="<%= product.id %>" aria-label="Add to wishlist">♡</button>
+  <div class="product-card-body">
+    <small class="eyebrow"><%= product.category_name %></small>
+    <h3><a href="/product/<%= product.slug %>"><%= product.name %></a></h3>
+    <div class="rating-line"><span>★★★★★</span><small><%= product.avg_rating ? product.avg_rating : 'New' %><% if(product.review_count){ %> (<%= product.review_count %>)<% } %></small></div>
+    <div class="price-line"><strong><%= money(product.price) %></strong><% if(product.compare_price && Number(product.compare_price)>Number(product.price)){ %><del><%= money(product.compare_price) %></del><% } %></div>
+    <button class="btn btn-dark btn-block" type="button" data-add-cart="<%= product.id %>">Add to Cart</button>
+  </div>
+</article>

@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "pipe-cleaner-art",
+    "name": "Pipe Cleaner Art",
+    "image_path": "public/seed-images/pipe-cleaner-art/01.jpg"
+  },
+  {
+    "slug": "pendants",
+    "name": "Pendants",
+    "image_path": "public/seed-images/pendants/01.jpg"
+  },
+  {
+    "slug": "bookmarks",
+    "name": "Bookmarks",
+    "image_path": "public/seed-images/bookmarks/01.jpg"
+  },
+  {
+    "slug": "keychains",
+    "name": "Keychains",
+    "image_path": "public/seed-images/keychains/01.jpg"
+  },
+  {
+    "slug": "rings",
+    "name": "Rings",
+    "image_path": "public/seed-images/rings/01.jpg"
+  },
+  {
+    "slug": "bracelets",
+    "name": "Bracelets",
+    "image_path": "public/seed-images/bracelets/01.jpg"
+  },
+  {
+    "slug": "varmala-preservation",
+    "name": "Varmala Flower Preservation",
+    "image_path": "public/seed-images/varmala-preservation/01.jpg"
+  },
+  {
+    "slug": "earring-pendant-sets",
+    "name": "Earrings & Pendant Sets",
+    "image_path": "public/seed-images/earring-pendant-sets/01.jpg"
+  },
+  {
+    "slug": "nameplates",
+    "name": "Custom Nameplates",
+    "image_path": "public/seed-images/nameplates/01.jpg"
+  }
+]

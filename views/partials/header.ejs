@@ -1,0 +1,28 @@
+<%- include('head') %>
+<div class="announcement"><div class="container"><span>✦</span> <%= site.announcement %> <span>✦</span></div></div>
+<header class="site-header">
+  <div class="container header-main">
+    <button class="icon-btn mobile-menu-btn" type="button" aria-label="Open menu" data-menu-toggle>☰</button>
+    <a class="brand" href="/"><img src="/images/logo.jpg" alt="Shilptara by Sonali"></a>
+    <form class="header-search" action="/shop" method="get">
+      <input type="search" name="q" placeholder="Search pendants, bracelets, nameplates..." value="<%= typeof q !== 'undefined' ? q : '' %>">
+      <button aria-label="Search">⌕</button>
+    </form>
+    <div class="header-actions">
+      <a href="<%= currentUser ? '/account' : '/login' %>" class="header-action"><span>♙</span><small><%= currentUser ? 'Account' : 'Login' %></small></a>
+      <a href="/wishlist" class="header-action badge-wrap"><span>♡</span><small>Wishlist</small><b data-wishlist-count><%= wishlistCount %></b></a>
+      <a href="/cart" class="header-action badge-wrap"><span>🛍</span><small>Cart</small><b data-cart-count><%= cartCount %></b></a>
+    </div>
+  </div>
+  <nav class="main-nav" data-mobile-menu>
+    <div class="container nav-scroll">
+      <a class="<%= currentPath==='/'?'active':'' %>" href="/">Home</a>
+      <a class="<%= currentPath==='/shop'?'active':'' %>" href="/shop">Shop All</a>
+      <% navCategories.forEach(c => { %><a href="/shop?category=<%= c.slug %>"><%= c.name %></a><% }) %>
+      <a href="/custom-order">Custom Orders</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </div>
+  </nav>
+</header>
+<% if (flash) { %><div class="flash <%= flash.type %>" data-flash><%= flash.message %></div><% } %>

@@ -1,0 +1,67 @@
+<%- include('partials/header') %>
+<main>
+  <section class="hero" data-slider>
+    <% banners.forEach((b,i)=>{ %>
+      <article class="hero-slide <%= i===0?'active':'' %>" style="background-image:linear-gradient(90deg,rgba(252,248,244,.98) 0%,rgba(252,248,244,.93) 42%,rgba(252,248,244,.18) 70%),url('/media/banner/<%= b.id %>')">
+        <div class="container hero-content">
+          <span class="section-kicker">Shilptara by Sonali</span>
+          <h1><%= b.title %></h1><p><%= b.subtitle %></p>
+          <div class="hero-buttons"><a class="btn btn-primary" href="<%= b.cta_link || '/shop' %>"><%= b.cta_text || 'Shop Now' %></a><a class="btn btn-ghost" href="/custom-order">Create a Custom Piece</a></div>
+        </div>
+      </article>
+    <% }) %>
+    <% if(banners.length>1){ %><div class="hero-dots"><% banners.forEach((b,i)=>{ %><button class="<%= i===0?'active':'' %>" data-slide-to="<%= i %>" aria-label="Slide <%= i+1 %>"></button><% }) %></div><% } %>
+  </section>
+
+  <section class="offer-slider" data-offer-slider>
+    <div class="container offer-inner">
+      <button class="offer-arrow" type="button" data-offer-prev aria-label="Previous offer">←</button>
+      <div class="offer-track">
+        <div class="offer-item active" data-offer-item><b>WELCOME10</b><span>Use code on your first order for 10% off</span></div>
+        <div class="offer-item" data-offer-item><b>FREE SHIPPING</b><span>On orders above ₹1,499</span></div>
+        <div class="offer-item" data-offer-item><b>CUSTOM MEMORIES</b><span>Names, dates, flowers and keepsakes made for you</span></div>
+      </div>
+      <button class="offer-arrow" type="button" data-offer-next aria-label="Next offer">→</button>
+    </div>
+  </section>
+
+  <section class="trust-strip"><div class="container trust-grid"><div>🌸 <b>Real botanicals</b><span>Preserved with care</span></div><div>🎁 <b>Gift ready</b><span>Thoughtful keepsakes</span></div><div>✦ <b>Handcrafted</b><span>Each piece is unique</span></div><div>🚚 <b>Pan-India delivery</b><span>Careful packaging</span></div></div></section>
+
+  <section class="section container">
+    <div class="section-heading centered"><span class="section-kicker">Find your favourite</span><h2>Shop by Category</h2><p>Jewellery, personalised keepsakes and décor created around flowers, memories and meaningful details.</p></div>
+    <div class="category-scroller">
+      <% categories.forEach(c=>{ %><a class="category-circle" href="/shop?category=<%= c.slug %>"><span><img src="/media/category/<%= c.id %>" alt="<%= c.name %>" loading="lazy"></span><strong><%= c.name %></strong></a><% }) %>
+    </div>
+  </section>
+
+  <section class="section soft-bg"><div class="container">
+    <div class="section-heading split"><div><span class="section-kicker">Loved right now</span><h2>Best Sellers</h2></div><a href="/shop?sort=featured">View all →</a></div>
+    <div class="product-grid"><% featured.slice(0,8).forEach(product=>{ %><%- include('partials/product-card',{product}) %><% }) %></div>
+  </div></section>
+
+  <section class="story-banner container">
+    <div class="story-copy"><span class="section-kicker">A memory, not just a product</span><h2>Preserve flowers from your most important days</h2><p>Wedding varmala, bouquets, first flowers and meaningful petals can become framed keepsakes, jewellery or personalised décor.</p><a class="btn btn-primary" href="/shop?category=varmala-preservation">Explore Flower Preservation</a></div>
+    <% const preserve = newProducts.find(p=>p.category_slug==='varmala-preservation'); %>
+    <div class="story-image"><% if(preserve){ %><img src="/media/product/<%= preserve.image_id %>" alt="Varmala flower preservation"><% } %></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-heading split"><div><span class="section-kicker">Fresh from the studio</span><h2>New & Noteworthy</h2></div><a href="/shop?sort=newest">Shop newest →</a></div>
+    <div class="product-grid"><% newProducts.slice(0,8).forEach(product=>{ %><%- include('partials/product-card',{product}) %><% }) %></div>
+  </section>
+
+  <section class="custom-grid-section">
+    <div class="container custom-grid">
+      <div><span class="section-kicker light">Made for you</span><h2>Customise the memory</h2><p>Add names, dates, initials, flowers or a story that matters to you. Custom orders can be discussed directly before production.</p><a class="btn btn-light" href="/custom-order">Start a Custom Order</a></div>
+      <div class="custom-points"><article><b>01</b><h3>Share your idea</h3><p>Tell us the product, occasion and details you want to preserve.</p></article><article><b>02</b><h3>Approve the concept</h3><p>We confirm size, style, price and custom elements.</p></article><article><b>03</b><h3>Handcrafted for you</h3><p>Your piece is made, packed carefully and dispatched.</p></article></div>
+    </div>
+  </section>
+
+  <% if(reviews.length){ %><section class="section container">
+    <div class="section-heading centered"><span class="section-kicker">From customers</span><h2>Small pieces, meaningful reactions</h2></div>
+    <div class="review-grid"><% reviews.forEach(r=>{ %><article><div class="stars"><%= '★'.repeat(r.rating) %></div><p>“<%= r.comment %>”</p><strong><%= r.reviewer_name %></strong><small><%= r.product_name %></small></article><% }) %></div>
+  </section><% } %>
+
+  <section class="newsletter"><div class="container"><div><span class="section-kicker">Stay close to the blooms</span><h2>New drops, gifting ideas & custom inspiration</h2></div><a class="btn btn-primary" href="/contact">Join via Contact</a></div></section>
+</main>
+<%- include('partials/footer') %>
