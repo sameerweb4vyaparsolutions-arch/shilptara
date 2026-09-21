@@ -61,6 +61,42 @@ async function loadSiteGlobals() {
   return next;
 }
 
+async function ensureRuntimeSchema() {
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS review_media (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      review_id INT NOT NULL,
+      media_data LONGBLOB NOT NULL,
+      mime_type VARCHAR(100) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_review_media_review_runtime FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+      INDEX idx_review_media_review (review_id, id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+    await pool.query(`CREATE TABLE IF NOT EXISTS celebrity_media (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(180) NOT NULL,
+      caption TEXT NULL,
+      media_data LONGBLOB NOT NULL,
+      mime_type VARCHAR(100) NOT NULL,
+      active TINYINT(1) NOT NULL DEFAULT 1,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_celebrity_active_sort (active, sort_order, id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+    await pool.query(
+      'INSERT IGNORE INTO settings(setting_key, setting_value) VALUES (?, ?)',
+      ['gst_number', '']
+    );
+
+    console.log('Runtime DB migration check complete.');
+  } catch (err) {
+    console.error('Runtime DB migration error:', err.code || err.message);
+  }
+}
+
 app.use(async (req, res, next) => {
   res.locals.money = money;
   res.locals.currentUser = req.session.user || null;
@@ -101,6 +137,9 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   res.status(500).render('error', { title: 'Something went wrong', error: process.env.NODE_ENV === 'production' ? null : err });
 });
+
+// Run lightweight migrations without delaying listen(), so this is safe on Render and Hostinger/Passenger.
+ensureRuntimeSchema();
 
 // Do not wrap listen() in a DB callback. This is important on Hostinger/Passenger.
 app.listen(PORT, '0.0.0.0', () => {
