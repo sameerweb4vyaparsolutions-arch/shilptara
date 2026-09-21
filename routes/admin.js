@@ -6,10 +6,22 @@ const { makeSlug } = require('../utils/helpers');
 const { requireAdmin } = require('../middleware/auth');
 const router = express.Router();
 
-const upload = multer({
+const imageUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 6 * 1024 * 1024, files: 10 },
+  limits: { fileSize: 8 * 1024 * 1024, files: 10 },
   fileFilter: (req, file, cb) => cb(null, /^image\//.test(file.mimetype))
+});
+
+const productMediaUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024, files: 10 },
+  fileFilter: (req, file, cb) => cb(null, /^(image|video)\//.test(file.mimetype))
+});
+
+const celebrityMediaUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => cb(null, /^(image|video)\//.test(file.mimetype))
 });
 
 function flash(req, type, message) { req.session.flash = { type, message }; }
@@ -70,7 +82,7 @@ router.get('/categories/:id/edit', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.post('/categories/save', upload.single('image'), async (req, res) => {
+router.post('/categories/save', imageUpload.single('image'), async (req, res) => {
   try {
     const id = Number(req.body.id || 0);
     const name = String(req.body.name || '').trim();
@@ -128,12 +140,12 @@ router.get('/products/:id/edit', async (req, res, next) => {
     const [products] = await pool.query('SELECT * FROM products WHERE id=?', [req.params.id]);
     if (!products.length) return res.redirect('/admin/products');
     const [categories] = await pool.query('SELECT id,name FROM categories ORDER BY sort_order,id');
-    const [images] = await pool.query('SELECT id,sort_order FROM product_images WHERE product_id=? ORDER BY sort_order,id', [req.params.id]);
+    const [images] = await pool.query('SELECT id,sort_order,mime_type FROM product_images WHERE product_id=? ORDER BY sort_order,id', [req.params.id]);
     res.render('admin/product-form', { title: 'Edit Product', product: products[0], categories, images });
   } catch (err) { next(err); }
 });
 
-router.post('/products/save', upload.array('images', 10), async (req, res) => {
+router.post('/products/save', productMediaUpload.array('images', 10), async (req, res) => {
   try {
     const id = Number(req.body.id || 0);
     const name = String(req.body.name || '').trim();
@@ -187,7 +199,7 @@ router.get('/banners/new', (req,res)=>res.render('admin/banner-form',{title:'Add
 router.get('/banners/:id/edit', async (req,res,next)=>{
   try { const [r]=await pool.query('SELECT id,title,subtitle,cta_text,cta_link,active,sort_order,image_data IS NOT NULL has_image FROM banners WHERE id=?',[req.params.id]); if(!r.length)return res.redirect('/admin/banners'); res.render('admin/banner-form',{title:'Edit Banner',banner:r[0]}); } catch(e){next(e);}
 });
-router.post('/banners/save', upload.single('image'), async (req,res)=>{
+router.post('/banners/save', imageUpload.single('image'), async (req,res)=>{
   try {
     const id=Number(req.body.id||0); const vals=[String(req.body.title||'').trim(),String(req.body.subtitle||'').trim(),String(req.body.cta_text||'').trim(),String(req.body.cta_link||'').trim(),req.body.active?1:0,Number(req.body.sort_order||0)];
     let bannerId=id;
@@ -198,6 +210,67 @@ router.post('/banners/save', upload.single('image'), async (req,res)=>{
   } catch(e){console.error(e);flash(req,'error','Could not save banner.');res.redirect('/admin/banners');}
 });
 router.post('/banners/:id/delete', async (req,res)=>{await pool.query('DELETE FROM banners WHERE id=?',[req.params.id]).catch(()=>{});flash(req,'success','Banner deleted.');res.redirect('/admin/banners');});
+
+// Dedicated Celebrity Gallery: upload event/celebrity photos and videos separately from products/reviews.
+router.get('/celebrity', async (req, res, next) => {
+  try {
+    const [items] = await pool.query('SELECT id,title,caption,mime_type,active,sort_order,created_at FROM celebrity_media ORDER BY sort_order,id DESC');
+    res.render('admin/celebrity', { title: 'Celebrity Gallery', items });
+  } catch (err) { next(err); }
+});
+
+router.get('/celebrity/new', (req, res) => res.render('admin/celebrity-form', { title: 'Add Celebrity Media', item: null }));
+
+router.get('/celebrity/:id/edit', async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT id,title,caption,mime_type,active,sort_order FROM celebrity_media WHERE id=?', [req.params.id]);
+    if (!rows.length) return res.redirect('/admin/celebrity');
+    res.render('admin/celebrity-form', { title: 'Edit Celebrity Media', item: rows[0] });
+  } catch (err) { next(err); }
+});
+
+router.post('/celebrity/save', celebrityMediaUpload.single('media'), async (req, res) => {
+  try {
+    const id = Number(req.body.id || 0);
+    const title = String(req.body.title || '').trim();
+    const caption = String(req.body.caption || '').trim();
+    const active = req.body.active ? 1 : 0;
+    const sortOrder = Number(req.body.sort_order || 0);
+    if (!title) throw new Error('Title is required.');
+    if (!id && !req.file) throw new Error('Please choose a photo or video.');
+
+    let itemId = id;
+    if (id) {
+      await pool.query('UPDATE celebrity_media SET title=?,caption=?,active=?,sort_order=? WHERE id=?', [title,caption,active,sortOrder,id]);
+    } else {
+      const [result] = await pool.query(
+        'INSERT INTO celebrity_media(title,caption,media_data,mime_type,active,sort_order) VALUES(?,?,?,?,?,?)',
+        [title,caption,req.file.buffer,req.file.mimetype,active,sortOrder]
+      );
+      itemId = result.insertId;
+    }
+    if (id && req.file) {
+      await pool.query('UPDATE celebrity_media SET media_data=?,mime_type=? WHERE id=?', [req.file.buffer,req.file.mimetype,itemId]);
+    }
+    flash(req, 'success', id ? 'Celebrity media updated.' : 'Celebrity media added.');
+    res.redirect('/admin/celebrity');
+  } catch (err) {
+    console.error(err);
+    flash(req, 'error', err.message || 'Could not save celebrity media.');
+    res.redirect('/admin/celebrity');
+  }
+});
+
+router.post('/celebrity/:id/toggle', async (req, res) => {
+  await pool.query('UPDATE celebrity_media SET active=1-active WHERE id=?', [req.params.id]).catch(()=>{});
+  res.redirect('/admin/celebrity');
+});
+
+router.post('/celebrity/:id/delete', async (req, res) => {
+  await pool.query('DELETE FROM celebrity_media WHERE id=?', [req.params.id]).catch(()=>{});
+  flash(req, 'success', 'Celebrity media deleted.');
+  res.redirect('/admin/celebrity');
+});
 
 router.get('/orders', async (req,res,next)=>{
   try { const [orders]=await pool.query('SELECT * FROM orders ORDER BY created_at DESC'); res.render('admin/orders',{title:'Orders',orders}); } catch(e){next(e);}
@@ -211,7 +284,7 @@ router.post('/orders/:id/status', async (req,res)=>{
 });
 
 router.get('/reviews', async (req,res,next)=>{
-  try { const [reviews]=await pool.query('SELECT r.*,p.name product_name FROM reviews r JOIN products p ON p.id=r.product_id ORDER BY r.created_at DESC'); res.render('admin/reviews',{title:'Reviews',reviews}); } catch(e){next(e);}
+  try { const [reviews]=await pool.query('SELECT r.*,p.name product_name,(SELECT rm.id FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_id,(SELECT rm.mime_type FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_type FROM reviews r JOIN products p ON p.id=r.product_id ORDER BY r.created_at DESC'); res.render('admin/reviews',{title:'Reviews',reviews}); } catch(e){next(e);}
 });
 router.post('/reviews/:id/toggle', async (req,res)=>{await pool.query('UPDATE reviews SET approved=1-approved WHERE id=?',[req.params.id]).catch(()=>{});res.redirect('/admin/reviews');});
 router.post('/reviews/:id/delete', async (req,res)=>{await pool.query('DELETE FROM reviews WHERE id=?',[req.params.id]).catch(()=>{});res.redirect('/admin/reviews');});
@@ -235,7 +308,7 @@ router.get('/settings', async (req,res,next)=>{
   try { const [rows]=await pool.query('SELECT setting_key,setting_value FROM settings'); const settings={}; rows.forEach(r=>settings[r.setting_key]=r.setting_value); res.render('admin/settings',{title:'Site Settings',settings}); } catch(e){next(e);}
 });
 router.post('/settings', async (req,res)=>{
-  const keys=['site_name','announcement','contact_email','contact_phone','whatsapp_number','instagram_url','facebook_url','address','about_text','shipping_note','footer_note'];
+  const keys=['site_name','announcement','contact_email','contact_phone','whatsapp_number','gst_number','instagram_url','facebook_url','address','about_text','shipping_note','footer_note'];
   for(const key of keys) await pool.query('INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',[key,String(req.body[key]||'').trim()]);
   flash(req,'success','Site settings updated.');res.redirect('/admin/settings');
 });

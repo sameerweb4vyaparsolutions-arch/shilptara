@@ -7,7 +7,7 @@
     </div>
     <div><h4>Shop</h4><a href="/shop?category=pendants">Pendants</a><a href="/shop?category=bracelets">Bracelets</a><a href="/shop?category=rings">Rings</a><a href="/shop?category=keychains">Keychains</a><a href="/shop?category=nameplates">Nameplates</a></div>
     <div><h4>Help</h4><a href="/about">Our Story</a><a href="/custom-order">Custom Orders</a><a href="/contact">Contact Us</a><a href="/account">Track Orders</a><a href="/wishlist">Wishlist</a></div>
-    <div><h4>Contact</h4><p><%= site.contact_email %></p><p><%= site.contact_phone %></p><p><%= site.address %></p><p class="shipping-note"><%= site.shipping_note %></p></div>
+    <div><h4>Contact</h4><p><%= site.contact_email %></p><p><%= site.contact_phone %></p><p><%= site.address %></p><% if(site.gst_number){ %><p><b>GSTIN:</b> <%= site.gst_number %></p><% } %><p class="shipping-note"><%= site.shipping_note %></p></div>
   </div>
   <div class="container footer-bottom"><span>© <%= new Date().getFullYear() %> <%= site.site_name %></span><span>Secure checkout • Handmade products • Customisable</span></div>
 </footer>

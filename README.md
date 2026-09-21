@@ -79,3 +79,26 @@ Uploaded product images, category images and banners are saved in MySQL, not the
 ## Change website contact details
 
 Go to `Admin > Site Settings` and enter the actual phone, WhatsApp number, Instagram/Facebook links and address. The WhatsApp floating button only appears after a valid WhatsApp number is saved.
+
+
+## Missing images after redeploy
+This build automatically repairs missing seeded category image BLOBs and products that have lost all seeded images whenever `npm run setup-db` runs. The category image endpoint also falls back to the packaged `/public/seed-images/<slug>/01.jpg` file if an older database row has no BLOB.
+
+On Render, keep the build command as:
+```bash
+npm install && npm run setup-db
+```
+Then redeploy the latest commit. Existing admin-customised images are not overwritten.
+
+
+## Client-requested update (21 Sep 2026)
+- Cleaner main navigation: Home, About Us, Shop, Categories dropdown, Custom Orders, My Orders, Contact.
+- About Us page now includes category showcase and customer reviews.
+- Product admin accepts both images and short videos; product detail gallery displays either type.
+- Logged-in customers can attach up to 3 photos/videos to a review. Review media is stored in MySQL BLOB and displayed on product/About/Home where available.
+- GSTIN field added to Admin > Site Settings and displayed in Contact/Footer when filled.
+- Domain-name changes are hosting/DNS settings and are not performed by application code.
+
+
+## Celebrity Gallery
+A dedicated Admin → Celebrity Gallery section lets the client upload, edit, hide, reorder and delete celebrity/event photos or videos. Media is stored in MySQL `celebrity_media` as LONGBLOB data and appears on the homepage plus `/celebrity-gallery`.

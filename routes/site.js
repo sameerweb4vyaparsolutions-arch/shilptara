@@ -1,12 +1,19 @@
 const express = require('express');
+const multer = require('multer');
 const pool = require('../config/db');
 const { requireUser } = require('../middleware/auth');
 const { shippingFor, discountFor } = require('../utils/helpers');
 const router = express.Router();
 
+const reviewMediaUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024, files: 3 },
+  fileFilter: (req, file, cb) => cb(null, /^(image|video)\//.test(file.mimetype))
+});
+
 const CARD_SELECT = `
   SELECT p.*, c.name AS category_name, c.slug AS category_slug,
-  (SELECT pi.id FROM product_images pi WHERE pi.product_id=p.id ORDER BY pi.sort_order,pi.id LIMIT 1) AS image_id,
+  (SELECT pi.id FROM product_images pi WHERE pi.product_id=p.id AND pi.mime_type LIKE 'image/%' ORDER BY pi.sort_order,pi.id LIMIT 1) AS image_id,
   (SELECT ROUND(AVG(r.rating),1) FROM reviews r WHERE r.product_id=p.id AND r.approved=1) AS avg_rating,
   (SELECT COUNT(*) FROM reviews r WHERE r.product_id=p.id AND r.approved=1) AS review_count
   FROM products p JOIN categories c ON c.id=p.category_id`;
@@ -41,8 +48,9 @@ router.get('/', async (req, res, next) => {
     const [banners] = await pool.query('SELECT id,title,subtitle,cta_text,cta_link FROM banners WHERE active=1 ORDER BY sort_order,id');
     const [featured] = await pool.query(`${CARD_SELECT} WHERE p.active=1 AND p.featured=1 ORDER BY p.updated_at DESC LIMIT 12`);
     const [newProducts] = await pool.query(`${CARD_SELECT} WHERE p.active=1 ORDER BY p.created_at DESC,p.id DESC LIMIT 12`);
-    const [reviews] = await pool.query(`SELECT r.reviewer_name,r.rating,r.comment,p.name AS product_name FROM reviews r JOIN products p ON p.id=r.product_id WHERE r.approved=1 ORDER BY r.created_at DESC LIMIT 6`);
-    res.render('home', { title: 'Handcrafted Botanical Keepsakes', categories, banners, featured, newProducts, reviews });
+    const [reviews] = await pool.query(`SELECT r.id,r.reviewer_name,r.rating,r.comment,p.name AS product_name,(SELECT rm.id FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_id,(SELECT rm.mime_type FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_type FROM reviews r JOIN products p ON p.id=r.product_id WHERE r.approved=1 ORDER BY r.created_at DESC LIMIT 6`);
+    const [celebrityMedia] = await pool.query('SELECT id,title,caption,mime_type FROM celebrity_media WHERE active=1 ORDER BY sort_order,id DESC LIMIT 8');
+    res.render('home', { title: 'Handcrafted Botanical Keepsakes', categories, banners, featured, newProducts, reviews, celebrityMedia });
   } catch (err) { next(err); }
 });
 
@@ -78,8 +86,8 @@ router.get('/product/:slug', async (req, res, next) => {
     const [rows] = await pool.query(`${CARD_SELECT} WHERE p.slug=? AND p.active=1 LIMIT 1`, [req.params.slug]);
     if (!rows.length) return res.status(404).render('404', { title: 'Product not found' });
     const product = rows[0];
-    const [images] = await pool.query('SELECT id FROM product_images WHERE product_id=? ORDER BY sort_order,id', [product.id]);
-    const [reviews] = await pool.query('SELECT reviewer_name,rating,comment,created_at FROM reviews WHERE product_id=? AND approved=1 ORDER BY created_at DESC', [product.id]);
+    const [images] = await pool.query('SELECT id,mime_type FROM product_images WHERE product_id=? ORDER BY sort_order,id', [product.id]);
+    const [reviews] = await pool.query("SELECT r.id,r.reviewer_name,r.rating,r.comment,r.created_at,(SELECT rm.id FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_id,(SELECT rm.mime_type FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_type FROM reviews r WHERE r.product_id=? AND r.approved=1 ORDER BY r.created_at DESC", [product.id]);
     const [questions] = await pool.query('SELECT name,question,answer,created_at FROM questions WHERE product_id=? AND answer IS NOT NULL AND answer<>\'\' ORDER BY created_at DESC LIMIT 10', [product.id]);
     const [related] = await pool.query(`${CARD_SELECT} WHERE p.active=1 AND p.category_id=? AND p.id<>? ORDER BY p.featured DESC,p.id DESC LIMIT 8`, [product.category_id, product.id]);
     await logActivity(product.id, 'view');
@@ -271,11 +279,22 @@ router.get('/account', requireUser, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.post('/product/:id/review', requireUser, async (req, res) => {
+router.post('/product/:id/review', requireUser, reviewMediaUpload.array('review_media', 3), async (req, res) => {
   const productId = Number(req.params.id);
   const rating = Math.max(1, Math.min(5, Number(req.body.rating || 5)));
   const comment = String(req.body.comment || '').trim();
-  if (comment) await pool.query('INSERT INTO reviews(product_id,user_id,reviewer_name,rating,comment,approved) VALUES(?,?,?,?,?,1)', [productId, req.session.user.id, req.session.user.name, rating, comment]);
+  try {
+    if (comment) {
+      const [result] = await pool.query('INSERT INTO reviews(product_id,user_id,reviewer_name,rating,comment,approved) VALUES(?,?,?,?,?,1)', [productId, req.session.user.id, req.session.user.name, rating, comment]);
+      for (const file of (req.files || [])) {
+        await pool.query('INSERT INTO review_media(review_id,media_data,mime_type) VALUES(?,?,?)', [result.insertId, file.buffer, file.mimetype]);
+      }
+      req.session.flash = { type: 'success', message: 'Thank you. Your review has been submitted.' };
+    }
+  } catch (err) {
+    console.error(err);
+    req.session.flash = { type: 'error', message: 'Could not submit review media. Please try a smaller image/video.' };
+  }
   res.redirect(req.get('referer') || '/shop');
 });
 
@@ -291,7 +310,20 @@ router.post('/product/:id/question', async (req, res) => {
   res.redirect(req.get('referer') || '/shop');
 });
 
-router.get('/about', (req, res) => res.render('about', { title: 'About Shilptara' }));
+router.get('/celebrity-gallery', async (req, res, next) => {
+  try {
+    const [items] = await pool.query('SELECT id,title,caption,mime_type FROM celebrity_media WHERE active=1 ORDER BY sort_order,id DESC');
+    res.render('celebrity-gallery', { title: 'Celebrity Gallery', items });
+  } catch (err) { next(err); }
+});
+
+router.get('/about', async (req, res, next) => {
+  try {
+    const [categories] = await pool.query('SELECT id,name,slug,description FROM categories WHERE active=1 ORDER BY sort_order,id');
+    const [reviews] = await pool.query("SELECT r.id,r.reviewer_name,r.rating,r.comment,p.name AS product_name,(SELECT rm.id FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_id,(SELECT rm.mime_type FROM review_media rm WHERE rm.review_id=r.id ORDER BY rm.id LIMIT 1) media_type FROM reviews r JOIN products p ON p.id=r.product_id WHERE r.approved=1 ORDER BY r.created_at DESC LIMIT 6");
+    res.render('about', { title: 'About Shilptara', categories, reviews });
+  } catch (err) { next(err); }
+});
 router.get('/contact', (req, res) => res.render('contact', { title: 'Contact us' }));
 router.get('/custom-order', (req, res) => res.render('custom-order', { title: 'Custom Orders' }));
 

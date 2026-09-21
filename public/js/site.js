@@ -25,7 +25,7 @@
     const resetOffer=()=>{clearInterval(ot);if(items.length>1)ot=setInterval(()=>show(oi+1),4000)};resetOffer();
   }
 
-  qsa('[data-gallery-src]').forEach(btn=>btn.addEventListener('click',()=>{const main=qs('[data-main-product-img]');if(main) main.src=btn.dataset.gallerySrc;qsa('[data-gallery-src]').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}));
+  qsa('[data-gallery-src]').forEach(btn=>btn.addEventListener('click',()=>{const stage=qs('[data-main-product-media]');if(stage){const src=btn.dataset.gallerySrc;const type=btn.dataset.galleryType||'image/jpeg';stage.innerHTML=type.startsWith('video/')?`<video src="${src}" controls playsinline preload="metadata"></video>`:`<img src="${src}" alt="Product media">`;}qsa('[data-gallery-src]').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}));
   qsa('[data-gallery-nav]').forEach(btn=>btn.addEventListener('click',()=>{const thumbs=qsa('[data-gallery-src]');if(!thumbs.length)return;let idx=thumbs.findIndex(x=>x.classList.contains('active'));idx=(idx+(btn.dataset.galleryNav==='next'?1:-1)+thumbs.length)%thumbs.length;thumbs[idx].click()}));
 
   const syncBuyNowQty=()=>{const i=qs('[data-qty-input]'),b=qs('[data-buy-now-qty]');if(i&&b)b.value=i.value};

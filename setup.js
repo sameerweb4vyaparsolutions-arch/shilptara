@@ -70,6 +70,19 @@ const schema = [
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
+`CREATE TABLE IF NOT EXISTS celebrity_media (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(180) NOT NULL,
+  caption TEXT NULL,
+  media_data LONGBLOB NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_celebrity_active_sort (active, sort_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
 `CREATE TABLE IF NOT EXISTS settings (
   setting_key VARCHAR(120) PRIMARY KEY,
   setting_value LONGTEXT NULL,
@@ -124,6 +137,16 @@ const schema = [
   CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
+`CREATE TABLE IF NOT EXISTS review_media (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  review_id INT NOT NULL,
+  media_data LONGBLOB NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_review_media_review FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+  INDEX idx_review_media_review (review_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
 `CREATE TABLE IF NOT EXISTS questions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   product_id INT NOT NULL,
@@ -174,12 +197,21 @@ async function seed() {
   const categoryIds = {};
   for (let i = 0; i < categories.length; i++) {
     const c = categories[i];
-    const [found] = await pool.query('SELECT id FROM categories WHERE slug=? LIMIT 1', [c.slug]);
+    const img = fs.readFileSync(path.join(root, c.image_path));
+    const [found] = await pool.query(
+      'SELECT id, OCTET_LENGTH(image_data) AS image_bytes FROM categories WHERE slug=? LIMIT 1',
+      [c.slug]
+    );
     if (found.length) {
       categoryIds[c.slug] = found[0].id;
+      // Older/live databases may already have the category row but no image BLOB.
+      // Backfill only missing images so admin-customised images are never overwritten.
+      if (!Number(found[0].image_bytes || 0)) {
+        await pool.query('UPDATE categories SET image_data=?, mime_type=? WHERE id=?', [img, 'image/jpeg', found[0].id]);
+        console.log(`Restored missing category image: ${c.name}`);
+      }
       continue;
     }
-    const img = fs.readFileSync(path.join(root, c.image_path));
     const [result] = await pool.query(
       'INSERT INTO categories(name,slug,description,image_data,mime_type,active,sort_order) VALUES(?,?,?,?,?,?,?)',
       [c.name, c.slug, `Explore handcrafted ${c.name.toLowerCase()} by Shilptara.`, img, 'image/jpeg', 1, i + 1]
@@ -187,35 +219,64 @@ async function seed() {
     categoryIds[c.slug] = result.insertId;
   }
 
-  const [productCountRows] = await pool.query('SELECT COUNT(*) AS total FROM products');
-  if (Number(productCountRows[0].total) === 0) {
-    const products = JSON.parse(fs.readFileSync(path.join(root, 'seed/products.json'), 'utf8'));
-    for (const p of products) {
+  // Seed missing products and repair seeded products that exist but lost all images.
+  // Existing product details and existing/admin-uploaded images are left untouched.
+  const products = JSON.parse(fs.readFileSync(path.join(root, 'seed/products.json'), 'utf8'));
+  let seededProducts = 0;
+  let repairedProductImages = 0;
+  for (const p of products) {
+    let productId;
+    const [existingProducts] = await pool.query('SELECT id FROM products WHERE slug=? LIMIT 1', [p.slug]);
+    if (existingProducts.length) {
+      productId = existingProducts[0].id;
+    } else {
       const [result] = await pool.query(
         `INSERT INTO products(category_id,name,slug,price,compare_price,stock,short_description,description,featured,active)
          VALUES(?,?,?,?,?,?,?,?,?,?)`,
         [categoryIds[p.category_slug], p.name, p.slug, p.price, p.compare_price, p.stock, p.short_description, p.description, p.featured, p.active]
       );
+      productId = result.insertId;
+      seededProducts++;
+    }
+
+    const [[imageCount]] = await pool.query('SELECT COUNT(*) AS total FROM product_images WHERE product_id=?', [productId]);
+    if (Number(imageCount.total) === 0) {
       const imagePaths = [p.image_path, ...(p.extra_image_paths || [])];
       for (let imageIndex = 0; imageIndex < imagePaths.length; imageIndex++) {
         const img = fs.readFileSync(path.join(root, imagePaths[imageIndex]));
-        await pool.query('INSERT INTO product_images(product_id,image_data,mime_type,sort_order) VALUES(?,?,?,?)', [result.insertId, img, 'image/jpeg', imageIndex + 1]);
+        await pool.query(
+          'INSERT INTO product_images(product_id,image_data,mime_type,sort_order) VALUES(?,?,?,?)',
+          [productId, img, 'image/jpeg', imageIndex + 1]
+        );
       }
+      repairedProductImages++;
     }
-    console.log(`Seeded ${products.length} products.`);
   }
+  if (seededProducts) console.log(`Seeded ${seededProducts} missing products.`);
+  if (repairedProductImages) console.log(`Restored images for ${repairedProductImages} product(s).`);
 
-  const [bannerCountRows] = await pool.query('SELECT COUNT(*) AS total FROM banners');
-  if (Number(bannerCountRows[0].total) === 0) {
-    const banners = [
-      ['Nature, Preserved Beautifully', 'Handcrafted real-flower jewellery and botanical keepsakes made to hold your memories.', 'Shop Jewellery', '/shop?category=pendants', 'hero-jewellery.jpg'],
-      ['Turn Wedding Flowers Into Forever', 'Preserve varmala flowers, photographs and milestones in custom memory frames.', 'Explore Preservation', '/shop?category=varmala-preservation', 'hero-preservation.jpg'],
-      ['Little Keepsakes, Big Stories', 'Personalised keychains, bookmarks, gifts and custom resin pieces made with meaning.', 'Shop Keepsakes', '/shop?category=keychains', 'hero-keepsakes.jpg']
-    ];
-    for (let i = 0; i < banners.length; i++) {
-      const [title, subtitle, ctaText, ctaLink, file] = banners[i];
-      const img = fs.readFileSync(path.join(root, 'public/seed-banners', file));
-      await pool.query('INSERT INTO banners(title,subtitle,cta_text,cta_link,image_data,mime_type,active,sort_order) VALUES(?,?,?,?,?,?,1,?)', [title, subtitle, ctaText, ctaLink, img, 'image/jpeg', i + 1]);
+  const banners = [
+    ['Nature, Preserved Beautifully', 'Handcrafted real-flower jewellery and botanical keepsakes made to hold your memories.', 'Shop Jewellery', '/shop?category=pendants', 'hero-jewellery.jpg'],
+    ['Turn Wedding Flowers Into Forever', 'Preserve varmala flowers, photographs and milestones in custom memory frames.', 'Explore Preservation', '/shop?category=varmala-preservation', 'hero-preservation.jpg'],
+    ['Little Keepsakes, Big Stories', 'Personalised keychains, bookmarks, gifts and custom resin pieces made with meaning.', 'Shop Keepsakes', '/shop?category=keychains', 'hero-keepsakes.jpg']
+  ];
+  for (let i = 0; i < banners.length; i++) {
+    const [title, subtitle, ctaText, ctaLink, file] = banners[i];
+    const img = fs.readFileSync(path.join(root, 'public/seed-banners', file));
+    const [existingBanners] = await pool.query(
+      'SELECT id, OCTET_LENGTH(image_data) AS image_bytes FROM banners WHERE title=? LIMIT 1',
+      [title]
+    );
+    if (existingBanners.length) {
+      if (!Number(existingBanners[0].image_bytes || 0)) {
+        await pool.query('UPDATE banners SET image_data=?, mime_type=? WHERE id=?', [img, 'image/jpeg', existingBanners[0].id]);
+        console.log(`Restored missing banner image: ${title}`);
+      }
+    } else {
+      await pool.query(
+        'INSERT INTO banners(title,subtitle,cta_text,cta_link,image_data,mime_type,active,sort_order) VALUES(?,?,?,?,?,?,1,?)',
+        [title, subtitle, ctaText, ctaLink, img, 'image/jpeg', i + 1]
+      );
     }
   }
 
@@ -225,6 +286,7 @@ async function seed() {
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '',
     whatsapp_number: '',
+    gst_number: '',
     instagram_url: '#',
     facebook_url: '#',
     address: 'India',

@@ -17,11 +17,18 @@
   <nav class="main-nav" data-mobile-menu>
     <div class="container nav-scroll">
       <a class="<%= currentPath==='/'?'active':'' %>" href="/">Home</a>
-      <a class="<%= currentPath==='/shop'?'active':'' %>" href="/shop">Shop All</a>
-      <% navCategories.forEach(c => { %><a href="/shop?category=<%= c.slug %>"><%= c.name %></a><% }) %>
+      <a class="<%= currentPath==='/about'?'active':'' %>" href="/about">About Us</a>
+      <a class="<%= currentPath==='/shop'?'active':'' %>" href="/shop">Shop</a>
+      <details class="nav-dropdown">
+        <summary>Categories <span>⌄</span></summary>
+        <div class="nav-dropdown-menu">
+          <% navCategories.forEach(c => { %><a href="/shop?category=<%= c.slug %>"><%= c.name %></a><% }) %>
+        </div>
+      </details>
+      <a class="<%= currentPath==='/celebrity-gallery'?'active':'' %>" href="/celebrity-gallery">Celebrity Gallery</a>
       <a href="/custom-order">Custom Orders</a>
-      <a href="/about">About</a>
-      <a href="/contact">Contact</a>
+      <a href="/account">My Orders</a>
+      <a class="<%= currentPath==='/contact'?'active':'' %>" href="/contact">Contact</a>
     </div>
   </nav>
 </header>

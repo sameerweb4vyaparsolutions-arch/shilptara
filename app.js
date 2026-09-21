@@ -75,6 +75,7 @@ app.use(async (req, res, next) => {
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '',
     whatsapp_number: '',
+    gst_number: '',
     instagram_url: '#', facebook_url: '#', address: 'India', footer_note: ''
   };
   res.locals.navCategories = [];

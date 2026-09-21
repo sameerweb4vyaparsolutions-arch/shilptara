@@ -30,7 +30,7 @@
   <section class="section container">
     <div class="section-heading centered"><span class="section-kicker">Find your favourite</span><h2>Shop by Category</h2><p>Jewellery, personalised keepsakes and décor created around flowers, memories and meaningful details.</p></div>
     <div class="category-scroller">
-      <% categories.forEach(c=>{ %><a class="category-circle" href="/shop?category=<%= c.slug %>"><span><img src="/media/category/<%= c.id %>" alt="<%= c.name %>" loading="lazy"></span><strong><%= c.name %></strong></a><% }) %>
+      <% categories.forEach(c=>{ %><a class="category-circle" href="/shop?category=<%= c.slug %>"><span><img src="/media/category/<%= c.id %>" alt="<%= c.name %>" loading="lazy" onerror="this.onerror=null;this.src='/seed-images/<%= c.slug %>/01.jpg';"></span><strong><%= c.name %></strong></a><% }) %>
     </div>
   </section>
 
@@ -57,9 +57,31 @@
     </div>
   </section>
 
+  <% if(celebrityMedia && celebrityMedia.length){ %>
+  <section class="section celebrity-section">
+    <div class="container">
+      <div class="section-heading split"><div><span class="section-kicker">Special moments</span><h2>Celebrity & Event Gallery</h2><p>Photos and videos from special appearances, events and memorable Shilptara moments.</p></div><a href="/celebrity-gallery">View full gallery →</a></div>
+      <div class="celebrity-grid">
+        <% celebrityMedia.forEach(item=>{ %>
+          <article class="celebrity-card">
+            <div class="celebrity-media-frame">
+              <% if(String(item.mime_type||'').startsWith('video/')){ %>
+                <video src="/media/celebrity/<%= item.id %>" controls preload="metadata" playsinline></video>
+              <% } else { %>
+                <img src="/media/celebrity/<%= item.id %>" alt="<%= item.title %>" loading="lazy">
+              <% } %>
+            </div>
+            <div class="celebrity-card-copy"><h3><%= item.title %></h3><% if(item.caption){ %><p><%= item.caption %></p><% } %></div>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
   <% if(reviews.length){ %><section class="section container">
     <div class="section-heading centered"><span class="section-kicker">From customers</span><h2>Small pieces, meaningful reactions</h2></div>
-    <div class="review-grid"><% reviews.forEach(r=>{ %><article><div class="stars"><%= '★'.repeat(r.rating) %></div><p>“<%= r.comment %>”</p><strong><%= r.reviewer_name %></strong><small><%= r.product_name %></small></article><% }) %></div>
+    <div class="review-grid"><% reviews.forEach(r=>{ %><article><% if(r.media_id){ %><div class="review-media"><% if(String(r.media_type||'').startsWith('video/')){ %><video src="/media/review/<%= r.media_id %>" controls preload="metadata"></video><% } else { %><img src="/media/review/<%= r.media_id %>" alt="Customer review"><% } %></div><% } %><div class="stars"><%= '★'.repeat(r.rating) %></div><p>“<%= r.comment %>”</p><strong><%= r.reviewer_name %></strong><small><%= r.product_name %></small></article><% }) %></div>
   </section><% } %>
 
   <section class="newsletter"><div class="container"><div><span class="section-kicker">Stay close to the blooms</span><h2>New drops, gifting ideas & custom inspiration</h2></div><a class="btn btn-primary" href="/contact">Join via Contact</a></div></section>
