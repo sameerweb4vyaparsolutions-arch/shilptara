@@ -1,7 +1,39 @@
 <%- include('partials/header') %>
-<main class="page-main">
-  <section class="page-hero"><div class="container"><span class="section-kicker">Our story</span><h1>Nature, memory & handmade detail</h1><p><%= site.about_text %></p></div></section>
-  <section class="section container about-grid"><div><span class="section-kicker">Shilptara by Sonali</span><h2>Made to keep meaningful things close</h2><p>Our collection brings together preserved botanicals, resin, jewellery findings and personalised details. From a tiny flower inside a pendant to a wedding varmala preserved in a frame, the idea is simple: turn moments into objects you can keep.</p><p>Every handmade piece naturally varies in colour, texture and placement. Those small differences are part of the character of working with real flowers and hand-finished materials.</p><a class="btn btn-primary" href="/shop">Explore the Collection</a></div><div class="about-values"><article><b>01</b><h3>Botanical at heart</h3><p>Flowers, petals, leaves and nature-inspired forms guide the collection.</p></article><article><b>02</b><h3>Personal by design</h3><p>Names, dates, initials and memory flowers can be added to many pieces.</p></article><article><b>03</b><h3>Handmade in small batches</h3><p>Each piece is assembled and finished carefully rather than mass-produced.</p></article></div></section>
+<main class="page-main about-page">
+  <section class="about-hero">
+    <div class="container about-hero-inner">
+      <span class="about-triad">NATURE. MEMORY. TRADITION.</span>
+      <span class="section-kicker">Our Story</span>
+      <h1>Where nature, memories & tradition live on</h1>
+    </div>
+  </section>
+
+  <section class="section container about-story-layout">
+    <div class="about-story-main">
+      <p>Shilptara by Sonali was born from a love for creating with the hands—and a desire to give meaningful things a life beyond their moment.</p>
+
+      <p>Founded by Sonali, a BDS graduate who chose to follow her passion for art and creativity, Shilptara brings together nature, emotions and Indian artistry through thoughtfully handcrafted creations.</p>
+
+      <p>From a flower carrying the memory of a special day to a personalised keepsake made just for you, every piece begins with a story.</p>
+
+      <p>We create real-flower and memory preservation pieces, handmade jewellery, nature-inspired creations, Indian traditional art, customised home décor and personalised keepsakes—each individually designed and personally crafted.</p>
+
+      <p>At Shilptara, we believe in preserving the beauty of nature, the emotions behind our memories, and the traditions that connect us to who we are.</p>
+
+      <p>Because when someone gives us a flower, a keepsake or a meaningful memory, we know they are giving us more than an object.</p>
+
+      <p class="about-emphasis-line">They are trusting us with a piece of their story.</p>
+
+      <p>And that trust is what makes every Shilptara creation personal.</p>
+    </div>
+
+    <aside class="about-story-card">
+      <span class="about-triad about-triad-card">NATURE. MEMORY. TRADITION.</span>
+      <h2>Three things worth preserving.</h2>
+      <p>True craftsmanship is not only about creating something beautiful, but giving something meaningful a life beyond its moment.</p>
+      <a class="btn btn-primary" href="/shop">Explore the Collection</a>
+    </aside>
+  </section>
 
   <section class="section soft-bg"><div class="container"><div class="section-heading centered"><span class="section-kicker">What we create</span><h2>Explore our categories</h2><p>Jewellery, keepsakes, gifting and flower-preservation pieces, each with its own handmade character.</p></div><div class="category-scroller"><% categories.forEach(c=>{ %><a class="category-circle" href="/shop?category=<%= c.slug %>"><span><img src="/media/category/<%= c.id %>" alt="<%= c.name %>" loading="lazy" onerror="this.onerror=null;this.src='/seed-images/<%= c.slug %>/01.jpg';"></span><strong><%= c.name %></strong></a><% }) %></div></div></section>
 
