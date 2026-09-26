@@ -180,7 +180,11 @@ router.post('/wishlist/toggle', async (req, res) => {
   list = exists ? list.filter(id => id !== productId) : [...list, productId];
   req.session.wishlist = list;
   if (!exists) await logActivity(productId, 'wishlist');
-  if (req.get('accept')?.includes('application/json') || req.xhr) return res.json({ ok: true, active: !exists, wishlistCount: list.length });
+  const message = exists ? 'Removed from wishlist' : 'Added to wishlist';
+  if (req.get('accept')?.includes('application/json') || req.xhr) {
+    return res.json({ ok: true, active: !exists, wishlistCount: list.length, message });
+  }
+  req.session.flash = { type: 'success', message };
   res.redirect(req.get('referer') || '/wishlist');
 });
 

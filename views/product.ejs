@@ -18,7 +18,7 @@
         <button class="btn btn-dark btn-block" type="submit">Add to Cart</button>
       </form>
       <form method="post" action="/buy-now"><input type="hidden" name="product_id" value="<%= product.id %>"><input type="hidden" name="qty" value="1" data-buy-now-qty><button class="btn btn-primary btn-block" type="submit">Buy It Now</button></form>
-      <form method="post" action="/wishlist/toggle"><input type="hidden" name="product_id" value="<%= product.id %>"><button class="btn btn-ghost btn-block" type="submit"><%= inWishlist?'♥ Remove from Wishlist':'♡ Add to Wishlist' %></button></form>
+      <button class="btn btn-ghost btn-block <%= inWishlist?'active':'' %>" type="button" data-wishlist-product="<%= product.id %>" data-wishlist-detail aria-label="<%= inWishlist?'Remove from wishlist':'Add to wishlist' %>"><%= inWishlist?'♥ Remove from Wishlist':'♡ Add to Wishlist' %></button>
       <div class="product-accordions">
         <details open><summary>Product Description</summary><p><%= product.description %></p><p>Because real botanicals are used, colour, shape and placement may vary slightly from the photographs. That natural variation makes every handmade piece one of a kind.</p></details>
         <details><summary>Care & Shipping</summary><p>Keep resin pieces away from harsh chemicals and extreme heat. Store jewellery dry when not in use. Shipping is calculated at checkout and custom products may require additional making time.</p></details>
