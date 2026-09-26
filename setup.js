@@ -282,7 +282,7 @@ async function seed() {
 
   const defaults = {
     site_name: 'Shilptara by Sonali',
-    announcement: 'Handcrafted botanical keepsakes • Pan-India shipping • Custom orders welcome',
+    announcement: 'Free shipping on orders above ₹1,499 • Except Wedding Preservation',
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '',
     whatsapp_number: '',
@@ -296,6 +296,20 @@ async function seed() {
   };
   for (const [key, value] of Object.entries(defaults)) {
     await pool.query('INSERT IGNORE INTO settings(setting_key,setting_value) VALUES(?,?)', [key, value]);
+  }
+
+  // One-time announcement update for existing deployments. Preserve any later admin customisation.
+  const announcementMigrationKey = 'announcement_bar_shipping_v1';
+  const [announcementMigration] = await pool.query('SELECT setting_value FROM settings WHERE setting_key=? LIMIT 1', [announcementMigrationKey]);
+  if (!announcementMigration.length) {
+    await pool.query(
+      'UPDATE settings SET setting_value=? WHERE setting_key=?',
+      ['Free shipping on orders above ₹1,499 • Except Wedding Preservation', 'announcement']
+    );
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      [announcementMigrationKey, '1']
+    );
   }
 
   // Reviews are never fabricated during setup. They appear only after real users submit them.

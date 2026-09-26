@@ -425,3 +425,48 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
 @media(max-width:360px){
   .cart-qty-control{grid-template-columns:36px 44px 36px}
 }
+
+
+/* ===== Announcement marquee motion ===== */
+.announcement-marquee{
+  position:relative;
+  overflow:hidden;
+  padding:0;
+  white-space:nowrap;
+}
+.announcement-track{
+  display:flex;
+  width:max-content;
+  min-width:200%;
+  align-items:center;
+  animation:announcementMarquee 18s linear infinite;
+  will-change:transform;
+}
+.announcement-item{
+  display:inline-block;
+  flex:0 0 auto;
+  min-width:50vw;
+  padding:9px 38px;
+  color:#fff;
+  font-size:.82rem;
+  letter-spacing:.04em;
+  text-align:center;
+}
+.announcement-marquee:hover .announcement-track{animation-play-state:paused}
+@keyframes announcementMarquee{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+@media(max-width:600px){
+  .announcement-track{animation-duration:13s}
+  .announcement-item{
+    min-width:100vw;
+    padding:9px 26px;
+    font-size:.72rem;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .announcement-track{animation:none;min-width:100%}
+  .announcement-item:nth-child(2){display:none}
+  .announcement-item{min-width:100%;white-space:normal}
+}

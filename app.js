@@ -107,7 +107,7 @@ app.use(async (req, res, next) => {
   delete req.session.flash;
   res.locals.site = {
     site_name: 'Shilptara by Sonali',
-    announcement: 'Handcrafted botanical keepsakes • Custom orders welcome',
+    announcement: 'Free shipping on orders above ₹1,499 • Except Wedding Preservation',
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '',
     whatsapp_number: '',

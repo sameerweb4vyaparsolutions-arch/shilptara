@@ -1,5 +1,10 @@
 <%- include('head') %>
-<div class="announcement"><div class="container"><span>✦</span> <%= site.announcement %> <span>✦</span></div></div>
+<div class="announcement announcement-marquee" aria-label="<%= site.announcement %>">
+  <div class="announcement-track">
+    <span class="announcement-item">✦ <%= site.announcement %> ✦</span>
+    <span class="announcement-item" aria-hidden="true">✦ <%= site.announcement %> ✦</span>
+  </div>
+</div>
 <header class="site-header">
   <div class="container header-main">
     <button class="icon-btn mobile-menu-btn" type="button" aria-label="Open menu" data-menu-toggle>☰</button>
