@@ -771,3 +771,73 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
   .footer-contact-row{font-size:.84rem}
   .footer-contact-icon{flex-basis:30px;width:30px;height:30px}
 }
+
+
+/* ===== About award recognition section ===== */
+.award-recognition-section{
+  background:#fff;
+  padding-top:20px;
+}
+.award-recognition-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);
+  gap:52px;
+  align-items:center;
+  padding:34px;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:linear-gradient(135deg,#fffdfb 0%,#fff8f1 55%,#f8ece9 100%);
+  box-shadow:0 20px 48px rgba(66,31,38,.08);
+}
+.award-recognition-image{
+  overflow:hidden;
+  border-radius:20px;
+  background:#eee3d8;
+  box-shadow:0 16px 36px rgba(49,29,25,.12);
+}
+.award-recognition-image img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.award-recognition-copy h2{
+  color:var(--wine-dark);
+  font-size:clamp(2.15rem,4vw,3.65rem);
+}
+.award-lead{
+  font-size:1.08rem;
+  color:#4f4246;
+  line-height:1.75;
+}
+.award-detail-card{
+  display:grid;
+  gap:8px;
+  margin:24px 0;
+  padding:20px;
+  border-left:4px solid var(--gold);
+  border-radius:0 14px 14px 0;
+  background:rgba(255,255,255,.78);
+}
+.award-detail-card strong{
+  color:var(--wine-dark);
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:1.25rem;
+}
+.award-detail-card span{
+  color:#6a5b5f;
+  font-size:.88rem;
+}
+@media(max-width:900px){
+  .award-recognition-grid{grid-template-columns:1fr;gap:30px;padding:24px}
+  .award-recognition-copy{text-align:center}
+  .award-detail-card{border-left:0;border-top:4px solid var(--gold);border-radius:14px}
+}
+@media(max-width:600px){
+  .award-recognition-section{padding-top:8px}
+  .award-recognition-grid{padding:14px;border-radius:20px;gap:22px}
+  .award-recognition-image{border-radius:14px}
+  .award-recognition-copy h2{font-size:2rem}
+  .award-lead{font-size:.95rem}
+  .award-detail-card{padding:15px}
+  .award-detail-card strong{font-size:1.08rem}
+}
