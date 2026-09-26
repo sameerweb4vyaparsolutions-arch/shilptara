@@ -572,3 +572,43 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
     line-height:1.25;
   }
 }
+
+
+/* ===== Wishlist feedback visibility fix ===== */
+.wishlist-feedback{
+  margin-top:10px;
+  padding:10px 14px;
+  border-radius:12px;
+  text-align:center;
+  font-size:.86rem;
+  font-weight:700;
+  border:1px solid transparent;
+}
+.wishlist-feedback[hidden]{display:none!important}
+.wishlist-feedback.added{
+  color:#17633a;
+  background:#eaf7ef;
+  border-color:#c8ead4;
+}
+.wishlist-feedback.removed{
+  color:var(--wine);
+  background:#fff2f5;
+  border-color:#efd3dc;
+}
+.wishlist-feedback.error{
+  color:#8a3030;
+  background:#fff0f0;
+  border-color:#f0caca;
+}
+@media(max-width:600px){
+  .toast{
+    top:112px;
+    bottom:auto;
+    right:50%;
+    transform:translateX(50%);
+    width:calc(100% - 28px);
+    max-width:420px;
+    text-align:center;
+    z-index:200;
+  }
+}
