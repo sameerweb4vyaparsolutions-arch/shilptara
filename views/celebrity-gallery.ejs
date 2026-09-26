@@ -1,1 +1,77 @@
-<%- include('partials/header') %><main class="page-main celebrity-gallery-page"><section class="page-hero"><div class="container gallery-page-intro"><span class="section-kicker">Special moments</span><h1>Celebrity & Event Gallery</h1><p>Selected photos and videos from appearances, events and special Shilptara moments.</p></div></section><section class="section container"><% if(items.length){ %><div class="celebrity-grid"><% items.forEach(item=>{ %><article class="celebrity-card"><div class="celebrity-media-frame"><% if(String(item.mime_type||'').startsWith('video/')){ %><video src="/media/celebrity/<%= item.id %>" controls preload="metadata" playsinline></video><% } else { %><img src="/media/celebrity/<%= item.id %>" alt="<%= item.title %>" loading="lazy"><% } %></div><div class="celebrity-card-copy"><h3><%= item.title %></h3><% if(item.caption){ %><p><%= item.caption %></p><% } %></div></article><% }) %></div><% } else { %><div class="empty-state"><h2>Gallery coming soon</h2><p>New photos and videos will appear here when added from the admin panel.</p></div><% } %></section></main><%- include('partials/footer') %>
+<%- include('partials/header') %>
+<main class="page-main celebrity-gallery-page">
+  <section class="page-hero">
+    <div class="container gallery-page-intro">
+      <span class="section-kicker">Awards, recognition & events</span>
+      <h1>Media Highlights</h1>
+      <p>Photos and videos arranged in the same sequence they were provided.</p>
+    </div>
+  </section>
+
+  <section class="section container media-series-section">
+    <div class="section-heading centered">
+      <span class="section-kicker">Photo series</span>
+      <h2>Awards & Event Moments</h2>
+      <p>The photo order below follows the exact upload sequence.</p>
+    </div>
+
+    <% const fixedPhotos = ["https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/80ba2cdb-ba85-4c52-aa45-4b546b403662.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/3f0f9e60-f8a9-41ee-b275-1750c9da24ec.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/7b8dca85-2c39-49ae-a6b5-9fc86d588a3e.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/b705a1f0-55e7-4bf8-b7f1-d8b3188c2c16.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/336fabd0-280c-4f97-a8e4-3ad8cea0ffcd.png","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/e04f1f55-236a-48bf-8aea-853ebe107028.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/eff158a4-a472-419c-915a-372ac1d0b8bc.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/ab154a4d-1148-4db4-bfea-185215a80410.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/fd2a416b-ccd1-4f7a-9620-2cadab36073e.jpg"]; %>
+    <div class="series-gallery-grid">
+      <% fixedPhotos.forEach((src,index)=>{ %>
+        <article class="series-media-card">
+          <div class="series-media-frame">
+            <img src="<%= src %>" alt="Shilptara award and event moment <%= index + 1 %>" loading="lazy">
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="section soft-bg media-series-section">
+    <div class="container">
+      <div class="section-heading centered">
+        <span class="section-kicker">Video series</span>
+        <h2>Event Videos</h2>
+        <p>The videos continue in the exact order in which they were uploaded.</p>
+      </div>
+
+      <% const fixedVideos = ["https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/5ab9ea33-628b-4074-be5f-f73642e7ccb3.mp4","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/1db0dd27-240b-4e22-99b3-3519fea527c3.mp4","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/248b3f9a-c9c1-45b1-877d-647da0b83634.mp4","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/9c5f8ce4-f880-444d-857e-cc16608a9d13.mp4"]; %>
+      <div class="series-gallery-grid series-video-grid">
+        <% fixedVideos.forEach((src,index)=>{ %>
+          <article class="series-media-card video-card">
+            <div class="series-media-frame">
+              <video src="<%= src %>" controls preload="metadata" playsinline></video>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <% if(items && items.length){ %>
+  <section class="section container">
+    <div class="section-heading centered">
+      <span class="section-kicker">More gallery updates</span>
+      <h2>Added from Admin</h2>
+    </div>
+    <div class="celebrity-grid">
+      <% items.forEach(item=>{ %>
+        <article class="celebrity-card">
+          <div class="celebrity-media-frame">
+            <% if(String(item.mime_type||'').startsWith('video/')){ %>
+              <video src="/media/celebrity/<%= item.id %>" controls preload="metadata" playsinline></video>
+            <% } else { %>
+              <img src="/media/celebrity/<%= item.id %>" alt="<%= item.title %>" loading="lazy">
+            <% } %>
+          </div>
+          <div class="celebrity-card-copy">
+            <h3><%= item.title %></h3>
+            <% if(item.caption){ %><p><%= item.caption %></p><% } %>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

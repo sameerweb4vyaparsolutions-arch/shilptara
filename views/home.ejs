@@ -57,27 +57,28 @@
     </div>
   </section>
 
-  <% if(celebrityMedia && celebrityMedia.length){ %>
   <section class="section celebrity-section">
     <div class="container">
-      <div class="section-heading split"><div><span class="section-kicker">Special moments</span><h2>Celebrity & Event Gallery</h2><p>Photos and videos from special appearances, events and memorable Shilptara moments.</p></div><a href="/celebrity-gallery">View full gallery →</a></div>
-      <div class="celebrity-grid">
-        <% celebrityMedia.forEach(item=>{ %>
-          <article class="celebrity-card">
-            <div class="celebrity-media-frame">
-              <% if(String(item.mime_type||'').startsWith('video/')){ %>
-                <video src="/media/celebrity/<%= item.id %>" controls preload="metadata" playsinline></video>
-              <% } else { %>
-                <img src="/media/celebrity/<%= item.id %>" alt="<%= item.title %>" loading="lazy">
-              <% } %>
+      <div class="section-heading split">
+        <div>
+          <span class="section-kicker">Awards & event moments</span>
+          <h2>Media Highlights</h2>
+          <p>Selected moments from the award and event series, shown in the same sequence as provided.</p>
+        </div>
+        <a href="/celebrity-gallery">View full gallery →</a>
+      </div>
+      <% const homeMediaHighlights = ["https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/80ba2cdb-ba85-4c52-aa45-4b546b403662.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/3f0f9e60-f8a9-41ee-b275-1750c9da24ec.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/7b8dca85-2c39-49ae-a6b5-9fc86d588a3e.jpg","https://d2ol7oe51mr4n9.cloudfront.net/user_3IAzn092S4QTQp5LrpSGEN1sh8R/b705a1f0-55e7-4bf8-b7f1-d8b3188c2c16.jpg"]; %>
+      <div class="series-gallery-grid home-media-series">
+        <% homeMediaHighlights.forEach((src,index)=>{ %>
+          <article class="series-media-card">
+            <div class="series-media-frame">
+              <img src="<%= src %>" alt="Shilptara media highlight <%= index + 1 %>" loading="lazy">
             </div>
-            <div class="celebrity-card-copy"><h3><%= item.title %></h3><% if(item.caption){ %><p><%= item.caption %></p><% } %></div>
           </article>
         <% }) %>
       </div>
     </div>
   </section>
-  <% } %>
 
   <% if(reviews.length){ %><section class="section container">
     <div class="section-heading centered"><span class="section-kicker">From customers</span><h2>Small pieces, meaningful reactions</h2></div>
