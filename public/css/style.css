@@ -470,3 +470,105 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
   .announcement-item:nth-child(2){display:none}
   .announcement-item{min-width:100%;white-space:normal}
 }
+
+
+/* ===== Highlighted offer slider ===== */
+.offer-slider{
+  position:relative;
+  background:linear-gradient(90deg,#fff8f0 0%,#fdf0f3 48%,#fff8f0 100%);
+  border-top:1px solid rgba(201,150,69,.22);
+  border-bottom:1px solid rgba(123,23,53,.12);
+  padding:12px 0;
+}
+.offer-inner{
+  min-height:66px;
+  gap:12px;
+}
+.offer-track{
+  min-height:48px;
+  width:min(760px,100%);
+  min-width:0;
+  padding:0 12px;
+  border:1px solid rgba(123,23,53,.14);
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 8px 24px rgba(80,38,47,.08);
+}
+.offer-item{
+  width:100%;
+  padding:7px 18px;
+  text-align:center;
+}
+.offer-item.active{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.offer-item b{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  margin:0;
+  padding:5px 11px;
+  border-radius:999px;
+  background:var(--wine);
+  color:#fff;
+  font-size:.72rem;
+  letter-spacing:.05em;
+  box-shadow:0 5px 14px rgba(123,23,53,.18);
+}
+.offer-item span{
+  color:#4f4246;
+  font-size:.9rem;
+  font-weight:600;
+}
+.offer-arrow{
+  flex:0 0 38px;
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(123,23,53,.22);
+  border-radius:50%;
+  background:#fff;
+  color:var(--wine);
+  font-size:1.1rem;
+  box-shadow:0 5px 14px rgba(80,38,47,.07);
+}
+.offer-arrow:hover{
+  background:var(--wine);
+  color:#fff;
+}
+
+@media(max-width:600px){
+  .offer-slider{padding:10px 0}
+  .offer-inner{gap:7px}
+  .offer-arrow{
+    flex-basis:32px;
+    width:32px;
+    height:32px;
+    font-size:1rem;
+  }
+  .offer-track{
+    min-height:58px;
+    border-radius:16px;
+    padding:0 7px;
+  }
+  .offer-item{
+    padding:8px 6px;
+  }
+  .offer-item.active{
+    flex-direction:column;
+    gap:3px;
+  }
+  .offer-item b{
+    min-height:25px;
+    padding:4px 9px;
+    font-size:.67rem;
+  }
+  .offer-item span{
+    font-size:.78rem;
+    line-height:1.25;
+  }
+}
