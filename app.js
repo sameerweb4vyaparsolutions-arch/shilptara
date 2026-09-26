@@ -109,10 +109,10 @@ app.use(async (req, res, next) => {
     site_name: 'Shilptara by Sonali',
     announcement: 'Free shipping on orders above ₹1,499 • Except Wedding Preservation',
     contact_email: 'shilptarabysonali@gmail.com',
-    contact_phone: '',
+    contact_phone: '+917499860794',
     whatsapp_number: '+917499860794',
     gst_number: '',
-    instagram_url: '#', facebook_url: '#', address: 'India', footer_note: ''
+    instagram_url: 'https://www.instagram.com/shilptara_by_sonali?stkn=MXBjMXZzZWIzcDY2Mg==', facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/', address: 'Maharashtra, India', footer_note: ''
   };
   res.locals.navCategories = [];
   if (req.path.startsWith('/media/')) return next();

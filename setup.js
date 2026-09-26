@@ -284,12 +284,12 @@ async function seed() {
     site_name: 'Shilptara by Sonali',
     announcement: 'Free shipping on orders above ₹1,499 • Except Wedding Preservation',
     contact_email: 'shilptarabysonali@gmail.com',
-    contact_phone: '',
+    contact_phone: '+917499860794',
     whatsapp_number: '+917499860794',
     gst_number: '',
-    instagram_url: '#',
-    facebook_url: '#',
-    address: 'India',
+    instagram_url: 'https://www.instagram.com/shilptara_by_sonali?stkn=MXBjMXZzZWIzcDY2Mg==',
+    facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/',
+    address: 'Maharashtra, India',
     about_text: 'Shilptara by Sonali creates handcrafted resin jewellery, preserved-flower keepsakes and personalised décor inspired by nature and meaningful moments.',
     shipping_note: 'Free shipping on orders above ₹1,499. Standard shipping ₹99.',
     footer_note: 'Handmade with care. Because flowers and memories deserve to stay.'
@@ -323,6 +323,29 @@ async function seed() {
     await pool.query(
       'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
       [whatsappMigrationKey, '1']
+    );
+  }
+
+  // One-time footer/contact detail update for the live deployment.
+  const footerContactMigrationKey = 'footer_contact_details_v1';
+  const [footerContactMigration] = await pool.query('SELECT setting_value FROM settings WHERE setting_key=? LIMIT 1', [footerContactMigrationKey]);
+  if (!footerContactMigration.length) {
+    const footerDetails = {
+      contact_phone: '+917499860794',
+      whatsapp_number: '+917499860794',
+      address: 'Maharashtra, India',
+      instagram_url: 'https://www.instagram.com/shilptara_by_sonali?stkn=MXBjMXZzZWIzcDY2Mg==',
+      facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/'
+    };
+    for (const [key, value] of Object.entries(footerDetails)) {
+      await pool.query(
+        'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+        [key, value]
+      );
+    }
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      [footerContactMigrationKey, '1']
     );
   }
 

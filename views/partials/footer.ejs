@@ -3,11 +3,41 @@
     <div class="footer-brand">
       <img src="/images/logo.jpg" alt="Shilptara by Sonali">
       <p><%= site.footer_note || 'Handmade with care. Because flowers and memories deserve to stay.' %></p>
-      <div class="social-links"><a href="<%= site.instagram_url || '#' %>" target="_blank" rel="noopener">Instagram</a><a href="<%= site.facebook_url || '#' %>" target="_blank" rel="noopener">Facebook</a></div>
+      <div class="social-links footer-social-icons">
+        <a href="<%= site.instagram_url || '#' %>" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.4" cy="6.7" r="1"/></svg>
+          <span>Instagram</span>
+        </a>
+        <a href="<%= site.facebook_url || '#' %>" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 8.2V6.7c0-.7.5-.9 1-.9H18V2.2L15 2C11.7 2 10 4 10 6.4v1.8H7v4h3V22h4.4v-9.8H18l.6-4h-4.2Z"/></svg>
+          <span>Facebook</span>
+        </a>
+      </div>
     </div>
     <div><h4>Shop</h4><a href="/shop?category=pendants">Pendants</a><a href="/shop?category=bracelets">Bracelets</a><a href="/shop?category=rings">Rings</a><a href="/shop?category=keychains">Keychains</a><a href="/shop?category=nameplates">Nameplates</a></div>
     <div><h4>Help</h4><a href="/about">Our Story</a><a href="/custom-order">Custom Orders</a><a href="/contact">Contact Us</a><a href="/account">Track Orders</a><a href="/wishlist">Wishlist</a></div>
-    <div><h4>Contact</h4><p><%= site.contact_email %></p><p><%= site.contact_phone %></p><p><%= site.address %></p><% if(site.gst_number){ %><p><b>GSTIN:</b> <%= site.gst_number %></p><% } %><p class="shipping-note"><%= site.shipping_note %></p></div>
+    <div class="footer-contact">
+      <h4>Contact</h4>
+      <a class="footer-contact-row" href="tel:<%= String(site.contact_phone || '+917499860794').replace(/\s/g,'') %>">
+        <span class="footer-contact-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 2.5 10 6.3 8.3 9.2c1.1 2.3 3 4.2 5.3 5.3l2.9-1.7 3.8 3.3c.5.4.6 1 .3 1.5-.8 1.5-2.4 3.6-5 3.8C9.1 22 2 14.9 2.6 8.4c.2-2.6 2.3-4.2 3.8-5 .5-.3 1-.2 1.5.3Z"/></svg></span>
+        <span>+91 74998 60794</span>
+      </a>
+      <a class="footer-contact-row" href="mailto:<%= site.contact_email %>">
+        <span class="footer-contact-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3V5Zm2 2v.4l7 5 7-5V7H5Zm14 10V9.8l-7 5-7-5V17h14Z"/></svg></span>
+        <span><%= site.contact_email %></span>
+      </a>
+      <div class="footer-contact-row">
+        <span class="footer-contact-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.6A2.6 2.6 0 1 1 12 6a2.6 2.6 0 0 1 0 5.6Z"/></svg></span>
+        <span><%= site.address || 'Maharashtra, India' %></span>
+      </div>
+      <% if(site.gst_number){ %>
+      <div class="footer-contact-row">
+        <span class="footer-contact-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2h14v20l-2.5-1.5L14 22l-2-1.5L10 22l-2.5-1.5L5 22V2Zm3 5h8V5H8v2Zm0 4h8V9H8v2Zm0 4h5v-2H8v2Z"/></svg></span>
+        <span><b>GSTIN:</b> <%= site.gst_number %></span>
+      </div>
+      <% } %>
+      <p class="shipping-note"><%= site.shipping_note %></p>
+    </div>
   </div>
   <div class="container footer-bottom"><span>© <%= new Date().getFullYear() %> <%= site.site_name %></span><span>Secure checkout • Handmade products • Customisable</span></div>
 </footer>

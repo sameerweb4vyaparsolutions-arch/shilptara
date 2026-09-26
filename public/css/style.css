@@ -718,3 +718,56 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
 .whatsapp-float{position:fixed!important;right:14px!important;bottom:16px!important;width:52px!important;height:52px!important;border-radius:50%!important;background:#25D366!important;display:grid!important;place-items:center!important;z-index:9999!important;box-shadow:0 10px 28px rgba(37,211,102,.36)!important}
 .whatsapp-icon{width:29px!important;height:29px!important;fill:#fff!important}
 @media(max-width:600px){.announcement-marquee{height:30px}.announcement-track{animation-duration:11s!important}.announcement-item{padding:0 28px!important;line-height:30px!important;font-size:.66rem!important}.whatsapp-float{right:12px!important;bottom:14px!important;width:50px!important;height:50px!important}.whatsapp-icon{width:28px!important;height:28px!important}}
+
+
+/* ===== Footer contact icons and social links ===== */
+.footer-social-icons{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.footer-social-icons a{
+  display:inline-flex!important;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  margin:0!important;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  color:#fff!important;
+  font-size:.78rem;
+  font-weight:700;
+}
+.footer-social-icons a:hover{background:rgba(255,255,255,.13)}
+.footer-social-icons svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
+.footer-social-icons a:nth-child(2) svg{fill:currentColor;stroke:none}
+.footer-contact{min-width:0}
+.footer-contact-row{
+  display:flex!important;
+  align-items:flex-start;
+  gap:10px;
+  margin:0 0 12px!important;
+  color:#eadfe2!important;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+.footer-contact-icon{
+  flex:0 0 32px;
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  margin-top:-4px;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  color:#f1c979;
+}
+.footer-contact-icon svg{width:17px;height:17px;fill:currentColor}
+.footer-contact-row b{color:#fff}
+.footer-contact .shipping-note{
+  margin-top:15px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.12);
+}
+@media(max-width:600px){
+  .footer-social-icons a{padding:8px 10px;font-size:.74rem}
+  .footer-contact-row{font-size:.84rem}
+  .footer-contact-icon{flex-basis:30px;width:30px;height:30px}
+}
