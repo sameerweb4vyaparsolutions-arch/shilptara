@@ -437,16 +437,14 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
 .announcement-track{
   display:flex;
   width:max-content;
-  min-width:200%;
   align-items:center;
-  animation:announcementMarquee 18s linear infinite;
+  animation:announcementMarquee 20s linear infinite;
   will-change:transform;
 }
 .announcement-item{
-  display:inline-block;
+  display:block;
   flex:0 0 auto;
-  min-width:50vw;
-  padding:9px 38px;
+  padding:9px 42px;
   color:#fff;
   font-size:.82rem;
   letter-spacing:.04em;
@@ -454,21 +452,31 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
 }
 .announcement-marquee:hover .announcement-track{animation-play-state:paused}
 @keyframes announcementMarquee{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-25%,0,0)}
 }
 @media(max-width:600px){
-  .announcement-track{animation-duration:13s}
+  .announcement-marquee{width:100vw}
+  .announcement-track{
+    animation-name:announcementMarqueeMobile;
+    animation-duration:11s;
+  }
   .announcement-item{
+    width:100vw;
     min-width:100vw;
-    padding:9px 26px;
+    padding:9px 20px;
     font-size:.72rem;
+    overflow:visible;
+  }
+  @keyframes announcementMarqueeMobile{
+    from{transform:translate3d(0,0,0)}
+    to{transform:translate3d(-100vw,0,0)}
   }
 }
 @media(prefers-reduced-motion:reduce){
-  .announcement-track{animation:none;min-width:100%}
-  .announcement-item:nth-child(2){display:none}
-  .announcement-item{min-width:100%;white-space:normal}
+  .announcement-track{animation:none;transform:none}
+  .announcement-item:not(:first-child){display:none}
+  .announcement-item{width:100%;min-width:100%;white-space:normal}
 }
 
 
@@ -660,4 +668,30 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
   .saved-later-card h3{font-size:1rem}
   .saved-actions{display:grid;grid-template-columns:1fr;align-items:stretch}
   .saved-actions .btn{width:100%}
+}
+
+
+/* ===== WhatsApp floating icon refinement ===== */
+.whatsapp-float{
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border:2px solid rgba(255,255,255,.92);
+}
+.whatsapp-icon{
+  width:30px;
+  height:30px;
+  display:block;
+  fill:#fff;
+}
+@media(max-width:600px){
+  .whatsapp-float{
+    right:16px;
+    bottom:18px;
+    width:58px;
+    height:58px;
+    z-index:220;
+    box-shadow:0 10px 28px rgba(37,211,102,.35);
+  }
+  .whatsapp-icon{width:32px;height:32px}
 }
