@@ -285,7 +285,7 @@ async function seed() {
     announcement: 'Free shipping on orders above ₹1,499 • Except Wedding Preservation',
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '',
-    whatsapp_number: '',
+    whatsapp_number: '+917499860794',
     gst_number: '',
     instagram_url: '#',
     facebook_url: '#',
@@ -309,6 +309,20 @@ async function seed() {
     await pool.query(
       'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
       [announcementMigrationKey, '1']
+    );
+  }
+
+  // One-time WhatsApp number update for the live deployment.
+  const whatsappMigrationKey = 'whatsapp_number_7499860794_v1';
+  const [whatsappMigration] = await pool.query('SELECT setting_value FROM settings WHERE setting_key=? LIMIT 1', [whatsappMigrationKey]);
+  if (!whatsappMigration.length) {
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      ['whatsapp_number', '+917499860794']
+    );
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      [whatsappMigrationKey, '1']
     );
   }
 

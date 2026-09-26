@@ -695,3 +695,16 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
   }
   .whatsapp-icon{width:32px;height:32px}
 }
+
+
+/* ===== Reference-style WhatsApp mobile placement ===== */
+@media(max-width:600px){
+  .whatsapp-float{
+    right:14px;
+    bottom:16px;
+    width:52px;
+    height:52px;
+    border-width:2px;
+  }
+  .whatsapp-icon{width:29px;height:29px}
+}

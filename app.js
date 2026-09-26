@@ -110,7 +110,7 @@ app.use(async (req, res, next) => {
     announcement: 'Free shipping on orders above ₹1,499 • Except Wedding Preservation',
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '',
-    whatsapp_number: '',
+    whatsapp_number: '+917499860794',
     gst_number: '',
     instagram_url: '#', facebook_url: '#', address: 'India', footer_note: ''
   };
