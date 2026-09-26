@@ -405,3 +405,23 @@ main,.page-main,section,.container,.header-main,.nav-scroll,.shop-results,.produ
   .about-emphasis-line{font-size:1.3rem!important;padding-left:16px}
   .about-story-card{padding:25px 20px;border-radius:18px}
 }
+
+
+/* ===== Cart quantity +/- controls ===== */
+.cart-qty-form{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.cart-qty-control{display:inline-grid;grid-template-columns:42px 54px 42px;align-items:center;height:44px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.cart-qty-btn{height:100%;border:0;background:#faf4f4;color:var(--wine);font-size:1.35rem;font-weight:700;line-height:1;display:grid;place-items:center;transition:.18s}
+.cart-qty-btn:hover:not(:disabled){background:var(--wine);color:#fff}
+.cart-qty-btn:disabled{opacity:.38;cursor:not-allowed}
+.cart-qty-input{width:100%;height:100%;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);outline:0;text-align:center;font-weight:700;color:var(--ink);background:#fff;-moz-appearance:textfield}
+.cart-qty-input::-webkit-outer-spin-button,.cart-qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.cart-update-link{border:0;background:transparent;color:var(--wine);font-weight:700;padding:7px 2px}
+@media(max-width:520px){
+  .cart-qty-form{gap:8px}
+  .cart-qty-control{grid-template-columns:38px 48px 38px;height:42px}
+  .cart-qty-btn{font-size:1.25rem}
+  .cart-update-link{font-size:.88rem}
+}
+@media(max-width:360px){
+  .cart-qty-control{grid-template-columns:36px 44px 36px}
+}

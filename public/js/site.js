@@ -33,6 +33,17 @@
   qsa('[data-qty-plus]').forEach(b=>b.addEventListener('click',()=>{const i=qs('[data-qty-input]',b.closest('.qty-row'));if(i){i.value=Math.min(10,Number(i.value||1)+1);syncBuyNowQty()}}));
   const qtyInput=qs('[data-qty-input]');if(qtyInput)qtyInput.addEventListener('change',syncBuyNowQty);
 
+  qsa('[data-cart-qty-form]').forEach(form=>{
+    const input=qs('[data-cart-qty-input]',form),minus=qs('[data-cart-qty-minus]',form),plus=qs('[data-cart-qty-plus]',form);
+    if(!input)return;
+    const sync=()=>{const n=Math.max(1,Math.min(10,Number(input.value||1)));input.value=n;if(minus)minus.disabled=n<=1;if(plus)plus.disabled=n>=10};
+    const change=delta=>{input.value=Math.max(1,Math.min(10,Number(input.value||1)+delta));sync();form.requestSubmit();};
+    if(minus)minus.addEventListener('click',()=>change(-1));
+    if(plus)plus.addEventListener('click',()=>change(1));
+    input.addEventListener('change',sync);
+    sync();
+  });
+
   qsa('[data-add-cart]').forEach(btn=>btn.addEventListener('click',async()=>{btn.disabled=true;const old=btn.textContent;btn.textContent='Adding…';try{const body=new URLSearchParams({product_id:btn.dataset.addCart,qty:'1'});const r=await fetch('/cart/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json','X-Requested-With':'XMLHttpRequest'},body});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Could not add');qsa('[data-cart-count]').forEach(x=>x.textContent=d.cartCount);toast(d.message||'Added to cart');btn.textContent='Added ✓';setTimeout(()=>btn.textContent=old,1300)}catch(e){toast(e.message,'error');btn.textContent=old}finally{btn.disabled=false}}));
 
   qsa('[data-wishlist-product]').forEach(btn=>btn.addEventListener('click',async()=>{if(btn.disabled)return;btn.disabled=true;try{const body=new URLSearchParams({product_id:btn.dataset.wishlistProduct});const r=await fetch('/wishlist/toggle',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json','X-Requested-With':'XMLHttpRequest'},body});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Could not update wishlist');btn.classList.toggle('active',d.active);if(btn.hasAttribute('data-wishlist-detail')){btn.textContent=d.active?'♥ Remove from Wishlist':'♡ Add to Wishlist'}else{btn.textContent=d.active?'♥':'♡'}btn.setAttribute('aria-label',d.active?'Remove from wishlist':'Add to wishlist');qsa('[data-wishlist-count]').forEach(x=>x.textContent=d.wishlistCount);toast(d.message||(d.active?'Added to wishlist':'Removed from wishlist'))}catch(e){toast(e.message||'Could not update wishlist','error')}finally{btn.disabled=false}}));
