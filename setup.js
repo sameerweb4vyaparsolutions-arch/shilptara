@@ -286,7 +286,7 @@ async function seed() {
     contact_email: 'shilptarabysonali@gmail.com',
     contact_phone: '+917499860794',
     whatsapp_number: '+917499860794',
-    gst_number: '',
+    gst_number: '27GGYPK7718H1ZI',
     instagram_url: 'https://www.instagram.com/shilptara_by_sonali?stkn=MXBjMXZzZWIzcDY2Mg==',
     facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/',
     address: 'Maharashtra, India',
@@ -346,6 +346,20 @@ async function seed() {
     await pool.query(
       'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
       [footerContactMigrationKey, '1']
+    );
+  }
+
+  // One-time GSTIN update for the live deployment.
+  const gstMigrationKey = 'gst_number_27GGYPK7718H1ZI_v1';
+  const [gstMigration] = await pool.query('SELECT setting_value FROM settings WHERE setting_key=? LIMIT 1', [gstMigrationKey]);
+  if (!gstMigration.length) {
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      ['gst_number', '27GGYPK7718H1ZI']
+    );
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      [gstMigrationKey, '1']
     );
   }
 
