@@ -1,13 +1,102 @@
 <%- include('partials/header') %>
-<main class="page-main"><section class="page-hero mini"><div class="container"><h1>Your Cart</h1></div></section><section class="container cart-layout">
-  <div class="cart-items"><% if(items.length){ items.forEach(item=>{ %><article class="cart-item"><a href="/product/<%= item.slug %>"><img src="/media/product/<%= item.image_id %>" alt="<%= item.name %>"></a><div class="cart-item-info"><small><%= item.category_name %></small><h3><a href="/product/<%= item.slug %>"><%= item.name %></a></h3><strong><%= money(item.price) %></strong><form method="post" action="/cart/update" class="cart-qty-form" data-cart-qty-form>
-  <input type="hidden" name="product_id" value="<%= item.id %>">
-  <div class="cart-qty-control">
-    <button type="button" class="cart-qty-btn" data-cart-qty-minus aria-label="Decrease quantity">−</button>
-    <input class="cart-qty-input" type="number" name="qty" min="1" max="10" value="<%= item.qty %>" data-cart-qty-input aria-label="Quantity">
-    <button type="button" class="cart-qty-btn" data-cart-qty-plus aria-label="Increase quantity">+</button>
+<main class="page-main">
+  <section class="page-hero mini"><div class="container"><h1>Your Cart</h1></div></section>
+
+  <section class="container cart-layout">
+    <div class="cart-items">
+      <% if(items.length){ items.forEach(item=>{ %>
+        <article class="cart-item">
+          <a href="/product/<%= item.slug %>"><img src="/media/product/<%= item.image_id %>" alt="<%= item.name %>"></a>
+          <div class="cart-item-info">
+            <small><%= item.category_name %></small>
+            <h3><a href="/product/<%= item.slug %>"><%= item.name %></a></h3>
+            <strong><%= money(item.price) %></strong>
+
+            <form method="post" action="/cart/update" class="cart-qty-form" data-cart-qty-form>
+              <input type="hidden" name="product_id" value="<%= item.id %>">
+              <div class="cart-qty-control">
+                <button type="button" class="cart-qty-btn" data-cart-qty-minus aria-label="Decrease quantity">−</button>
+                <input class="cart-qty-input" type="number" name="qty" min="1" max="10" value="<%= item.qty %>" data-cart-qty-input aria-label="Quantity">
+                <button type="button" class="cart-qty-btn" data-cart-qty-plus aria-label="Increase quantity">+</button>
+              </div>
+              <button class="cart-update-link" type="submit">Update</button>
+            </form>
+
+            <button class="remove-link cart-remove-trigger" type="button"
+              data-cart-remove="<%= item.id %>"
+              data-cart-remove-name="<%= item.name %>">Remove</button>
+          </div>
+          <b class="line-total"><%= money(item.line_total) %></b>
+        </article>
+      <% }) } else { %>
+        <div class="empty-state"><h2>Your cart is empty</h2><p>Browse handcrafted pieces and save something meaningful.</p><a class="btn btn-primary" href="/shop">Continue Shopping</a></div>
+      <% } %>
+    </div>
+
+    <% if(items.length){ %>
+      <aside class="order-summary">
+        <h2>Order Summary</h2>
+        <div><span>Subtotal</span><b><%= money(subtotal) %></b></div>
+        <% if(discount>0){ %><div><span>Discount (<%= couponCode %>)</span><b>-<%= money(discount) %></b></div><% } %>
+        <div><span>Shipping</span><b><%= shipping===0?'FREE':money(shipping) %></b></div>
+        <div class="summary-total"><span>Total</span><b><%= money(total) %></b></div>
+        <form method="post" action="/cart/coupon" style="display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0">
+          <input class="field" name="coupon_code" placeholder="Coupon code" value="<%= couponCode %>">
+          <button class="btn btn-ghost" type="submit"><%= couponCode?'Update':'Apply' %></button>
+        </form>
+        <p>Try <b>WELCOME10</b> for 10% off. Free shipping above ₹1,499.</p>
+        <a class="btn btn-primary btn-block" href="/checkout">Proceed to Checkout</a>
+        <a class="btn btn-ghost btn-block" href="/shop">Continue Shopping</a>
+      </aside>
+    <% } %>
+  </section>
+
+  <% if(savedItems && savedItems.length){ %>
+    <section class="container saved-later-section">
+      <div class="section-heading split">
+        <div><span class="section-kicker">Keep for later</span><h2>Saved for Later</h2></div>
+        <span class="saved-count"><%= savedItems.length %> item<%= savedItems.length===1?'':'s' %></span>
+      </div>
+      <div class="saved-later-grid">
+        <% savedItems.forEach(item=>{ %>
+          <article class="saved-later-card">
+            <a class="saved-later-image" href="/product/<%= item.slug %>"><img src="/media/product/<%= item.image_id %>" alt="<%= item.name %>"></a>
+            <div>
+              <small><%= item.category_name %></small>
+              <h3><a href="/product/<%= item.slug %>"><%= item.name %></a></h3>
+              <strong><%= money(item.price) %></strong>
+              <p>Saved quantity: <%= item.qty %></p>
+              <div class="saved-actions">
+                <form method="post" action="/cart/saved/move-to-cart"><input type="hidden" name="product_id" value="<%= item.id %>"><button class="btn btn-primary" type="submit">Move to Cart</button></form>
+                <form method="post" action="/cart/saved/move-to-wishlist"><input type="hidden" name="product_id" value="<%= item.id %>"><button class="btn btn-ghost" type="submit">Move to Wishlist</button></form>
+                <form method="post" action="/cart/saved/remove"><input type="hidden" name="product_id" value="<%= item.id %>"><button class="text-link saved-remove" type="submit">Remove</button></form>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <div class="cart-remove-modal" data-cart-remove-modal hidden>
+    <div class="cart-remove-backdrop" data-cart-remove-close></div>
+    <section class="cart-remove-dialog" role="dialog" aria-modal="true" aria-labelledby="cart-remove-title">
+      <button class="cart-remove-close" type="button" data-cart-remove-close aria-label="Close">×</button>
+      <div class="cart-remove-icon">♡</div>
+      <h2 id="cart-remove-title">Remove this item?</h2>
+      <p><strong data-cart-remove-product></strong></p>
+      <p class="cart-remove-help">You can remove it completely, move it to your wishlist, or save it here for later.</p>
+      <div class="cart-remove-actions">
+        <button class="btn btn-primary btn-block" type="button" data-cart-remove-action="/cart/move-to-wishlist">♡ Move to Wishlist</button>
+        <button class="btn btn-ghost btn-block" type="button" data-cart-remove-action="/cart/save-for-later">Save for Later</button>
+        <button class="cart-remove-final" type="button" data-cart-remove-action="/cart/remove">Remove from Cart</button>
+        <button class="cart-remove-cancel" type="button" data-cart-remove-close>Cancel</button>
+      </div>
+    </section>
   </div>
-  <button class="cart-update-link" type="submit">Update</button>
-</form><form method="post" action="/cart/remove"><input type="hidden" name="product_id" value="<%= item.id %>"><button class="remove-link" type="submit">Remove</button></form></div><b class="line-total"><%= money(item.line_total) %></b></article><% }) } else { %><div class="empty-state"><h2>Your cart is empty</h2><p>Browse handcrafted pieces and save something meaningful.</p><a class="btn btn-primary" href="/shop">Continue Shopping</a></div><% } %></div>
-  <% if(items.length){ %><aside class="order-summary"><h2>Order Summary</h2><div><span>Subtotal</span><b><%= money(subtotal) %></b></div><% if(discount>0){ %><div><span>Discount (<%= couponCode %>)</span><b>-<%= money(discount) %></b></div><% } %><div><span>Shipping</span><b><%= shipping===0?'FREE':money(shipping) %></b></div><div class="summary-total"><span>Total</span><b><%= money(total) %></b></div><form method="post" action="/cart/coupon" style="display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0"><input class="field" name="coupon_code" placeholder="Coupon code" value="<%= couponCode %>"><button class="btn btn-ghost" type="submit"><%= couponCode?'Update':'Apply' %></button></form><p>Try <b>WELCOME10</b> for 10% off. Free shipping above ₹1,499.</p><a class="btn btn-primary btn-block" href="/checkout">Proceed to Checkout</a><a class="btn btn-ghost btn-block" href="/shop">Continue Shopping</a></aside><% } %>
-</section></main><%- include('partials/footer') %>
+
+  <form method="post" data-cart-remove-form hidden>
+    <input type="hidden" name="product_id" data-cart-remove-product-id>
+  </form>
+</main>
+<%- include('partials/footer') %>

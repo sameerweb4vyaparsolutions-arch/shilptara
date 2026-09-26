@@ -36,6 +36,11 @@ function getWishlist(req) {
   return req.session.wishlist;
 }
 
+function getSavedForLater(req) {
+  if (!Array.isArray(req.session.savedForLater)) req.session.savedForLater = [];
+  return req.session.savedForLater;
+}
+
 async function logActivity(productId, actionType) {
   try {
     await pool.query('INSERT INTO activity_logs(product_id,action_type,actor_label) VALUES(?,?,?)', [productId || null, actionType, 'A shopper']);
@@ -145,7 +150,13 @@ router.get('/cart', async (req, res, next) => {
     const shipping = shippingFor(subtotal);
     const couponCode = req.session.coupon || '';
     const discount = discountFor(subtotal, couponCode);
-    res.render('cart', { title: 'Your Cart', items, subtotal, shipping, discount, couponCode, total: Math.max(0, subtotal - discount + shipping) });
+    const saved = getSavedForLater(req);
+    const savedProducts = await getProductsByIds(saved.map(x => Number(x.product_id)));
+    const savedItems = savedProducts.map(p => {
+      const savedItem = saved.find(x => Number(x.product_id) === Number(p.id));
+      return { ...p, qty: Number(savedItem?.qty || 1) };
+    });
+    res.render('cart', { title: 'Your Cart', items, savedItems, subtotal, shipping, discount, couponCode, total: Math.max(0, subtotal - discount + shipping) });
   } catch (err) { next(err); }
 });
 
@@ -162,6 +173,78 @@ router.post('/cart/update', (req, res) => {
 router.post('/cart/remove', (req, res) => {
   const productId = Number(req.body.product_id);
   req.session.cart = getCart(req).filter(x => Number(x.product_id) !== productId);
+  req.session.flash = { type: 'success', message: 'Product removed from cart.' };
+  res.redirect('/cart');
+});
+
+router.post('/cart/move-to-wishlist', async (req, res) => {
+  const productId = Number(req.body.product_id);
+  req.session.cart = getCart(req).filter(x => Number(x.product_id) !== productId);
+  let wishlist = getWishlist(req);
+  if (!wishlist.includes(productId)) {
+    wishlist.push(productId);
+    req.session.wishlist = wishlist;
+    await logActivity(productId, 'wishlist');
+  }
+  req.session.savedForLater = getSavedForLater(req).filter(x => Number(x.product_id) !== productId);
+  req.session.flash = { type: 'success', message: 'Product moved to wishlist.' };
+  res.redirect('/cart');
+});
+
+router.post('/cart/save-for-later', (req, res) => {
+  const productId = Number(req.body.product_id);
+  const cart = getCart(req);
+  const item = cart.find(x => Number(x.product_id) === productId);
+  if (item) {
+    let saved = getSavedForLater(req);
+    const existing = saved.find(x => Number(x.product_id) === productId);
+    if (existing) existing.qty = Number(item.qty || 1);
+    else saved.push({ product_id: productId, qty: Number(item.qty || 1) });
+    req.session.savedForLater = saved;
+  }
+  req.session.cart = cart.filter(x => Number(x.product_id) !== productId);
+  req.session.flash = { type: 'success', message: 'Product saved for later.' };
+  res.redirect('/cart');
+});
+
+router.post('/cart/saved/move-to-cart', async (req, res) => {
+  const productId = Number(req.body.product_id);
+  const saved = getSavedForLater(req);
+  const savedItem = saved.find(x => Number(x.product_id) === productId);
+  try {
+    const [rows] = await pool.query('SELECT id,stock,active FROM products WHERE id=? LIMIT 1', [productId]);
+    if (!rows.length || !rows[0].active || Number(rows[0].stock) <= 0) throw new Error('Unavailable');
+    const qty = Math.min(10, Number(rows[0].stock), Math.max(1, Number(savedItem?.qty || 1)));
+    const cart = getCart(req);
+    const existing = cart.find(x => Number(x.product_id) === productId);
+    if (existing) existing.qty = Math.min(Number(rows[0].stock), Number(existing.qty || 1) + qty);
+    else cart.push({ product_id: productId, qty });
+    req.session.cart = cart;
+    req.session.savedForLater = saved.filter(x => Number(x.product_id) !== productId);
+    req.session.flash = { type: 'success', message: 'Product moved back to cart.' };
+  } catch (_) {
+    req.session.flash = { type: 'error', message: 'This product is currently unavailable.' };
+  }
+  res.redirect('/cart');
+});
+
+router.post('/cart/saved/move-to-wishlist', async (req, res) => {
+  const productId = Number(req.body.product_id);
+  req.session.savedForLater = getSavedForLater(req).filter(x => Number(x.product_id) !== productId);
+  let wishlist = getWishlist(req);
+  if (!wishlist.includes(productId)) {
+    wishlist.push(productId);
+    req.session.wishlist = wishlist;
+    await logActivity(productId, 'wishlist');
+  }
+  req.session.flash = { type: 'success', message: 'Saved item moved to wishlist.' };
+  res.redirect('/cart');
+});
+
+router.post('/cart/saved/remove', (req, res) => {
+  const productId = Number(req.body.product_id);
+  req.session.savedForLater = getSavedForLater(req).filter(x => Number(x.product_id) !== productId);
+  req.session.flash = { type: 'success', message: 'Saved item removed.' };
   res.redirect('/cart');
 });
 
