@@ -112,7 +112,7 @@ app.use(async (req, res, next) => {
     contact_phone: '+917499860794',
     whatsapp_number: '+917499860794',
     gst_number: '27GGYPK7718H1ZI',
-    instagram_url: 'https://www.instagram.com/shilptara_by_sonali?stkn=MXBjMXZzZWIzcDY2Mg==', facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/', address: 'Maharashtra, India', footer_note: ''
+    instagram_url: 'https://www.instagram.com/shilptara_by_sonali/', facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/', address: 'Maharashtra, India', footer_note: ''
   };
   res.locals.navCategories = [];
   if (req.path.startsWith('/media/')) return next();

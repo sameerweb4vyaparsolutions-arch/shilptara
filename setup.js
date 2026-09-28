@@ -287,7 +287,7 @@ async function seed() {
     contact_phone: '+917499860794',
     whatsapp_number: '+917499860794',
     gst_number: '27GGYPK7718H1ZI',
-    instagram_url: 'https://www.instagram.com/shilptara_by_sonali?stkn=MXBjMXZzZWIzcDY2Mg==',
+    instagram_url: 'https://www.instagram.com/shilptara_by_sonali/',
     facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/',
     address: 'Maharashtra, India',
     about_text: 'Shilptara by Sonali creates handcrafted resin jewellery, preserved-flower keepsakes and personalised décor inspired by nature and meaningful moments.',
@@ -360,6 +360,26 @@ async function seed() {
     await pool.query(
       'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
       [gstMigrationKey, '1']
+    );
+  }
+
+  // One-time canonical social-link fix for existing deployments.
+  const socialLinksMigrationKey = 'social_links_canonical_v2';
+  const [socialLinksMigration] = await pool.query('SELECT setting_value FROM settings WHERE setting_key=? LIMIT 1', [socialLinksMigrationKey]);
+  if (!socialLinksMigration.length) {
+    const socialLinks = {
+      instagram_url: 'https://www.instagram.com/shilptara_by_sonali/',
+      facebook_url: 'https://www.facebook.com/share/1DWFEuMwL4/'
+    };
+    for (const [key, value] of Object.entries(socialLinks)) {
+      await pool.query(
+        'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+        [key, value]
+      );
+    }
+    await pool.query(
+      'INSERT INTO settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+      [socialLinksMigrationKey, '1']
     );
   }
 
